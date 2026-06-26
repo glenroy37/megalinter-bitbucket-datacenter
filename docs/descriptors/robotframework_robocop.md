@@ -24,11 +24,11 @@ RoboCop is a linter and code formatter for the Robot Framework. It helps maintai
 
 ## robocop documentation
 
-- Version in MegaLinter: **6.11.0**
+- Version in MegaLinter: **8.3.2**
 - Visit [Official Web Site](https://github.com/MarketSquare/robotframework-robocop#readme){target=_blank}
-- See [How to configure robocop rules](https://robocop.readthedocs.io/en/stable/configuration/configuration.html){target=_blank}
-- See [How to disable robocop rules in files](https://robocop.readthedocs.io/en/stable/rules/rules_basics.html#selecting-and-ignoring-rules){target=_blank}
-- See [Index of problems detected by robocop](https://robocop.readthedocs.io/en/stable/rules/rules_list.html){target=_blank}
+- See [How to configure robocop rules](https://robocop.dev/stable/configuration/){target=_blank}
+- See [How to disable robocop rules in files](https://robocop.dev/stable/configuration/disablers/){target=_blank}
+- See [Index of problems detected by robocop](https://robocop.dev/stable/rules_list/){target=_blank}
 
 [![robotframework-robocop - GitHub](https://gh-card.dev/repos/MarketSquare/robotframework-robocop.svg?fullname=)](https://github.com/MarketSquare/robotframework-robocop){target=_blank}
 
@@ -71,8 +71,8 @@ This linter is available in the following flavors
 
 |                                                                         <!-- -->                                                                         | Flavor                                                 | Description                                     | Embedded linters |                                                                                                                                                                                       Info |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------|:------------------------------------------------|:----------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/images/mega-linter-square.png" alt="" height="32px" class="megalinter-icon"></a> | [all](https://megalinter.io/beta/supported-linters/)   | Default MegaLinter Flavor                       |       131        |                 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter) |
-|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/cupcake.ico" alt="" height="32px" class="megalinter-icon"></a>       | [cupcake](https://megalinter.io/beta/flavors/cupcake/) | MegaLinter for the most commonly used languages |        89        | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-cupcake/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-cupcake) |
+| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/images/mega-linter-square.png" alt="" height="32px" class="megalinter-icon"></a> | [all](https://megalinter.io/beta/supported-linters/)   | Default MegaLinter Flavor                       |       137        |                 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter) |
+|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/cupcake.ico" alt="" height="32px" class="megalinter-icon"></a>       | [cupcake](https://megalinter.io/beta/flavors/cupcake/) | MegaLinter for the most commonly used languages |        93        | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-cupcake/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-cupcake) |
 
 ## Behind the scenes
 
@@ -103,24 +103,20 @@ robocop check myfile.robot
  Full documentation available at https://robocop.dev.
 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --version                                            Show the version and    │
-│                                                      exit.                   │
-│ --install-completion          [bash|zsh|fish|powers  Install completion for  │
-│                               hell|pwsh]             the specified shell.    │
-│ --show-completion             [bash|zsh|fish|powers  Show completion for the │
-│                               hell|pwsh]             specified shell, to     │
-│                                                      copy it or customize    │
-│                                                      the installation.       │
-│ --help                -h                             Show this message and   │
-│                                                      exit.                   │
+│ --version                       Show the version and exit.                   │
+│ --install-completion            Install completion for the current shell.    │
+│ --show-completion               Show completion for the current shell, to    │
+│                                 copy it or customize the installation.       │
+│ --help                -h        Show this message and exit.                  │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────╮
-│ check     Lint Robot Framework files.                                        │
-│ format    Format Robot Framework files.                                      │
-│ list      List available rules, reports or formatters.                       │
-│ docs      Print formatter, rule or report documentation.                     │
-│ migrate   Migrate Robocop and Robotidy old configuration files to the new    │
-│           format supported by the Robocop 6.0.                               │
+│ check          Lint Robot Framework files.                                   │
+│ check-project  Analyse the whole project using project level checkers.       │
+│ format         Format Robot Framework files.                                 │
+│ list           List available rules, reports or formatters.                  │
+│ docs           Print formatter, rule or report documentation.                │
+│ migrate        Migrate Robocop and Robotidy old configuration files to the   │
+│                new format supported by the Robocop 6.0.                      │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 
 ```
@@ -130,8 +126,31 @@ robocop check myfile.robot
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=pypi depName=robotframework-robocop
-ARG PIP_ROBOT_FRAMEWORK_ROBOCOP_VERSION=6.11.0
+ARG PIP_ROBOT_FRAMEWORK_ROBOCOP_VERSION=8.3.2
 ```
 
 - PIP packages (Python):
-  - [robotframework-robocop==6.11.0](https://pypi.org/project/robotframework-robocop/6.11.0)
+  - [robotframework-robocop==8.3.2](https://pypi.org/project/robotframework-robocop/8.3.2)
+
+## Known errors and resolutions
+
+When this linter fails for a known non-lint reason (remote service unavailable, malformed config, missing credentials, etc.), MegaLinter detects the pattern below in the linter output and surfaces the matching guidance.
+
+### ROBOTFRAMEWORK_ROBOCOP_ERROR_CONFIG_INVALID
+
+**Detection pattern (regex):**
+
+```text
+(InvalidConfigurationError|InvalidConfigurationFormatError|InvalidParameterValueError|Provided rule '[^']+' does not exist|Circular reference found in 'extends')
+```
+
+**Resolution guidance:**
+
+```text
+Robocop could not load its configuration (CLI args or `robocop.toml`) or referenced an unknown rule.
+Resolutions:
+  - Validate the TOML syntax of `robocop.toml`.
+  - Check that all rule names under `include`/`exclude`/`configure` exist in the installed Robocop version (rule names were reorganized in Robocop 5+ / 6+).
+  - See <https://robocop.dev/stable/rules_list/>.
+```
+

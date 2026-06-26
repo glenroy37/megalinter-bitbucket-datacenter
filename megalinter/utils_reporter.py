@@ -2,9 +2,11 @@
 import json
 import logging
 import os
+import re
 import subprocess
 import time
 
+import requests
 from megalinter import config, utils
 from megalinter.constants import (
     DEFAULT_RELEASE,
@@ -25,6 +27,9 @@ def build_markdown_summary(reporter_self, action_run_url="", max_total_chars=400
         reporter_self.master.request_id,
         "REPORTERS_MARKDOWN_SUMMARY_TYPE",
         "table-sections",
+    )
+    action_run_url = config.get(
+        reporter_self.master.request_id, "REPORTERS_ACTION_RUN_URL", action_run_url
     )
     if markdown_summary_type == "sections":
         return build_markdown_summary_sections(
@@ -172,6 +177,12 @@ def build_markdown_summary_footer(reporter_self, action_run_url=""):
     if reporter_self.master.result_message != "":
         footer += reporter_self.master.result_message + os.linesep
 
+    user_notifications = build_user_notifications(reporter_self.master)
+    if user_notifications:
+        footer += os.linesep + "### Notices" + os.linesep + os.linesep
+        for notice in user_notifications:
+            footer += notice + os.linesep + os.linesep
+
     if action_run_url != "":
         footer += (
             "See detailed reports in [MegaLinter artifacts"
@@ -244,6 +255,11 @@ def build_markdown_summary_footer(reporter_self, action_run_url=""):
     else:
         footer += os.linesep + OX_MARKDOWN_LINK
 
+    footer += (
+        os.linesep
+        + "Show us your support by [**starring ⭐ the repository**](https://github.com/oxsecurity/megalinter)"
+    )
+
     if config.exists(
         reporter_self.master.request_id, "JOB_SUMMARY_ADDITIONAL_MARKDOWN"
     ):
@@ -252,6 +268,54 @@ def build_markdown_summary_footer(reporter_self, action_run_url=""):
         )
 
     return footer
+
+
+def register_user_notification(master, key, template, value=None, extras=None):
+    """Register or extend a user-facing notification on a Megalinter instance.
+
+    A notification has a stable ``key`` so multiple callers can contribute to
+    the same message. ``template`` is a ``str.format`` string that may
+    reference ``{values}`` (joined, backticked list) and any extra
+    placeholder defined in ``extras``.
+    """
+    if not hasattr(master, "user_notifications") or master.user_notifications is None:
+        master.user_notifications = {}
+    entry = master.user_notifications.setdefault(
+        key,
+        {"template": template, "values": [], "extras": {}},
+    )
+    # First registration wins for template / extras so the message stays
+    # consistent across contributors. New extras keys are still merged in.
+    if not entry.get("template"):
+        entry["template"] = template
+    if extras:
+        for extra_key, extra_value in extras.items():
+            entry["extras"].setdefault(extra_key, extra_value)
+    if value is not None and value not in entry["values"]:
+        entry["values"].append(value)
+    return entry
+
+
+def build_user_notifications(master):
+    """Render all registered user notifications as a list of strings."""
+    notifications = getattr(master, "user_notifications", None) or {}
+    rendered = []
+    for entry in notifications.values():
+        values = sorted(set(entry.get("values", [])))
+        template = entry.get("template", "") or ""
+        # Skip entries whose template expects values but has none
+        if not values and "{values}" in template:
+            continue
+        formatted_values = ", ".join(f"`{v}`" for v in values) if values else ""
+        try:
+            line = template.format(
+                values=formatted_values, **(entry.get("extras", {}) or {})
+            )
+        except (KeyError, IndexError):
+            # Fall back to the raw template if a placeholder is missing
+            line = template
+        rendered.append(line)
+    return rendered
 
 
 def log_link(label, url):
@@ -268,6 +332,13 @@ def get_linter_doc_url(linter):
     return linter_doc_url
 
 
+def _sanitize_ci_section_key(key: str) -> str:
+    # GitLab section names can only contain letters, numbers, and '_', '.', '-'.
+    # Keep it stable and avoid characters that can break folding.
+    key = re.sub(r"[^0-9A-Za-z_.-]+", "_", (key or "")).strip("._")
+    return (key or "section")[:80]
+
+
 def log_section_start(section_key: str, section_title: str):
     if (
         utils.is_ci()
@@ -276,12 +347,16 @@ def log_section_start(section_key: str, section_title: str):
         if utils.is_github_actions():
             return f"::group::{section_title} (expand for details)"
         elif utils.is_gitlab_ci():
+            ts = int(time.time())
+            safe_key = _sanitize_ci_section_key(section_key)
             return (
-                f"\x1b[0Ksection_start:`{time.time_ns()}`:{section_key}"  # noqa: W605
-                + f"[collapsed=true]\r\x1b[0K{section_title} (expand for details)"  # noqa: W605
+                f"section_start:{ts}:{safe_key}"  # noqa: W605
+                + f"[collapsed=true]\r\x1b[0K{section_title}"  # noqa: W605
             )
         elif utils.is_azure_pipelines():
             return f"##[group]{section_title} (expand for details)"
+        elif utils.is_bitbucket() or utils.is_jenkins():
+            return section_title
     return section_title
 
 
@@ -293,9 +368,13 @@ def log_section_end(section_key):
         if utils.is_github_actions():
             return "::endgroup::"
         elif utils.is_gitlab_ci():
-            return f"\x1b[0Ksection_end:`{time.time_ns()}`:{section_key}\r\x1b[0K"  # noqa: W605
+            ts = int(time.time())
+            safe_key = _sanitize_ci_section_key(section_key)
+            return f"section_end:{ts}:{safe_key}\r\x1b[0K"  # noqa: W605
         elif utils.is_azure_pipelines():
             return "##[endgroup]"
+        elif utils.is_bitbucket() or utils.is_jenkins():
+            return ""
     return ""
 
 
@@ -440,6 +519,46 @@ def manage_redis_stream(result, redis_stream):
             elif isinstance(result_val, bool):
                 result[result_key] = int(result_val)
     return result
+
+
+def build_webhook_headers(request_id: str) -> dict:
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+    }
+    if config.exists(request_id, "WEBHOOK_REPORTER_BEARER_TOKEN"):
+        headers["authorization"] = (
+            f"Bearer {config.get(request_id, 'WEBHOOK_REPORTER_BEARER_TOKEN')}"
+        )
+    return headers
+
+
+def post_webhook_message(hook_url: str, payload: object, reporter, success_label: str):
+    context = ""
+    if reporter.scope == "linter":
+        context = (
+            f" for {reporter.master.descriptor_id}"
+            f" with {reporter.master.linter_name}"
+        )
+    try:
+        response = requests.post(
+            hook_url,
+            headers=build_webhook_headers(reporter.master.request_id),
+            json=payload,
+        )
+        if 200 <= response.status_code < 299:
+            logging.debug(
+                f"[WebHook Reporter] Successfully posted {success_label}{context}"
+            )
+        else:
+            logging.warning(
+                f"[WebHook Reporter] Error posting {success_label}{context}: {response.status_code}\n"
+                f"API response: {response.text}"
+            )
+    except requests.exceptions.RequestException as e:
+        logging.warning(
+            f"[WebHook Reporter] Error posting {success_label}{context}: {str(e)}"
+        )
 
 
 def send_redis_message(reporter_self, message_data):
@@ -625,8 +744,8 @@ def _build_sections_content(
                     if len(linter_output) > max_chars_per_linter:
                         total_chars = len(linter_output)
                         linter_output = (
-                            linter_output[:max_chars_per_linter]
-                            + f"\n\n(Truncated to {max_chars_per_linter} characters out of {total_chars})"
+                            linter_output[-max_chars_per_linter:]
+                            + f"\n\n(Truncated to last {max_chars_per_linter} characters out of {total_chars})"
                         )
                     if linter_output.strip():
                         # Escape any HTML in the output and wrap in code block
@@ -659,7 +778,10 @@ def _build_sections_content(
         else:
             # If LLM_ADVISOR_POSITION is before_linter_output, put AI suggestions first
             details_content = ai_suggestion_content + linter_output
-        content += f"<details>\n<summary>{summary_text}</summary>\n\n{details_content}\n\n</details>\n\n"
+        if getattr(reporter_self, "markdown_supports_html_details", True):
+            content += f"<details>\n<summary>{summary_text}</summary>\n\n{details_content}\n\n</details>\n\n"
+        else:
+            content += f"### {summary_text}\n\n{details_content}\n\n"
 
     # Add summary section for OK linters
     if linters_ok:

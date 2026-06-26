@@ -1,3 +1,4 @@
+---
 descriptor_id: DOCKERFILE
 descriptor_type: tooling_format
 descriptor_flavors:
@@ -63,6 +64,17 @@ linters:
     cli_sarif_args:
       - --format
       - sarif
+    common_linter_errors:
+      - identifier: DOCKERFILE_HADOLINT_ERROR_CONFIG_PARSE
+        regex: "Error parsing your config file in"
+        message: |-
+          Hadolint could not parse its configuration file (.hadolint.yaml / .hadolint.yml).
+          Validate the YAML syntax and ensure all keys (`ignored`, `trustedRegistries`, `override`, `failure-threshold`) match the hadolint config schema.
+      - identifier: DOCKERFILE_HADOLINT_ERROR_CONFIG_READ
+        regex: "Failed reading .*\\.hadolint"
+        message: |-
+          Hadolint could not read the configuration file passed via `--config`.
+          Check that the file path exists inside the container and that the file is readable.
     examples:
       - "hadolint Dockerfile"
       - "hadolint --config .hadolint.yml Dockerfile"
@@ -73,6 +85,10 @@ linters:
           ARG DOCKERFILE_HADOLINT_VERSION=v2.14.0-alpine
         - FROM hadolint/hadolint:${DOCKERFILE_HADOLINT_VERSION} AS hadolint
         - COPY --link --from=hadolint /bin/hadolint /usr/bin/hadolint
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       vscode:
         - name: hadolint

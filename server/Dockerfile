@@ -1,8 +1,8 @@
 ##################
 # Build wheel for megalinter python package
 ##################
-FROM ghcr.io/astral-sh/uv:0.9.9 AS uv
-FROM python:3.13-alpine3.21 AS build-ml-core
+FROM ghcr.io/astral-sh/uv:0.11.24 AS uv
+FROM python:3.14-alpine3.21 AS build-ml-core
 WORKDIR /
 COPY pyproject.toml .
 COPY --from=uv /uv /bin/uv
@@ -10,11 +10,13 @@ RUN --mount=type=cache,target=/root/.cache/uv \
      uv pip install --system -r pyproject.toml
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system .
+    uv pip install --system . \
+    && python -m pip install --no-cache-dir "wheel>=0.46.2" "setuptools>=75.8.0"
 
-FROM python:3.13-alpine
+FROM python:3.14-alpine
 
-RUN apk add --upgrade --no-cache git
+RUN apk add --upgrade --no-cache git \
+    && python -m pip install --no-cache-dir "wheel>=0.46.2" "setuptools>=75.8.0"
 
 WORKDIR /
 
@@ -29,4 +31,6 @@ RUN --mount=type=cache,target=/root/.cache/uv,from=build-ml-core \
 COPY server /server
 COPY server/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+
+
 

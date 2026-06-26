@@ -1,6 +1,6 @@
 # Configuration file for MegaLinter
 # See all available variables at https://megalinter.io/latest/config-file/ and in linters documentation
-
+---
 APPLY_FIXES: all # When active, APPLY_FIXES must also be defined as environment variable (in github/workflows/mega-linter.yml or other CI tool)
 # ENABLE: # If you use ENABLE variable, all other languages/formats/tooling formats will be disabled by default
 # ENABLE_LINTERS: # If you use ENABLE_LINTERS variable, all other linters will be disabled by default
@@ -11,6 +11,7 @@ DISABLE_ERRORS_LINTERS:
   - REPOSITORY_TRUFFLEHOG
   - SPELL_LYCHEE
 DISABLE_LINTERS:
+  - API_SPECTRAL
   - SPELL_CODESPELL
   - SPELL_PROSELINT
 JAVASCRIPT_DEFAULT_STYLE: prettier
@@ -21,3 +22,10 @@ GITHUB_STATUS_REPORTER: false
 SHOW_ELAPSED_TIME: true
 FILEIO_REPORTER: true
 PRINT_ALL_FILES: false
+REPOSITORY_TRIVY_ARGUMENTS:
+  - "--skip-dirs"
+  - ".automation/test"
+  - "--skip-dirs"
+  - ".venv"
+  - "--skip-dirs"
+  - "github_conf"

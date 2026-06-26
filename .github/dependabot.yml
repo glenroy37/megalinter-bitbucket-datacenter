@@ -1,3 +1,4 @@
+---
 #################################
 # GitHub Dependabot Config info #
 #################################
@@ -15,14 +16,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-  - package-ecosystem: "npm"
-    directory: "/.automation/test/repository_grype/bad/"
-    schedule:
-      interval: monthly
-    ignore:
-      - dependency-name: "minimist"
-      - dependency-name: "chalk/ansi-regex"
-      - dependency-name: "*"
 
   # Maintain dependencies for ruby with bundler
   - package-ecosystem: "bundler"
@@ -49,11 +42,6 @@ updates:
     open-pull-requests-limit: 10
   - package-ecosystem: "docker"
     directory: "/server"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-  - package-ecosystem: "docker"
-    directory: "/.config/gitpod"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10

@@ -33,5 +33,11 @@ description: golangci-lint, revive are available to analyze GO files in MegaLint
 
 ### Installation
 
-- APK packages (Linux):
-  - [go](https://pkgs.alpinelinux.org/packages?branch=v3.22&arch=x86_64&name=go)
+- Dockerfile commands :
+```dockerfile
+# renovate: datasource=repology depName=alpine_3_24/go versioning=loose
+ARG GO_ALPINE_VERSION=1.26.3-r0
+RUN apk add --no-cache \
+    go=${GO_ALPINE_VERSION}
+```
+

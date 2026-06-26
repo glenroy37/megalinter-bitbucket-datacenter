@@ -9,11 +9,11 @@ description: luacheck, selene, stylua are available to analyze LUA files in Mega
 
 ## Linters
 
-| Linter                                                                | Additional                                                                                                                               |
-|-----------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| [**luacheck**](lua_luacheck.md)<br/>[_LUA_LUACHECK_](lua_luacheck.md) | [![GitHub stars](https://img.shields.io/github/stars/lunarmodules/luacheck?cacheSeconds=3600)](https://github.com/lunarmodules/luacheck) |
-| [**selene**](lua_selene.md)<br/>[_LUA_SELENE_](lua_selene.md)         | [![GitHub stars](https://img.shields.io/github/stars/Kampfkarren/selene?cacheSeconds=3600)](https://github.com/Kampfkarren/selene)       |
-| [**stylua**](lua_stylua.md)<br/>[_LUA_STYLUA_](lua_stylua.md)         | [![GitHub stars](https://img.shields.io/github/stars/JohnnyMorganz/StyLua?cacheSeconds=3600)](https://github.com/JohnnyMorganz/StyLua)   |
+| Linter                                                                | Additional                                                                                                                                                                                |
+|-----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [**luacheck**](lua_luacheck.md)<br/>[_LUA_LUACHECK_](lua_luacheck.md) | [![GitHub stars](https://img.shields.io/github/stars/lunarmodules/luacheck?cacheSeconds=3600)](https://github.com/lunarmodules/luacheck)                                                  |
+| [**selene**](lua_selene.md)<br/>[_LUA_SELENE_](lua_selene.md)         | ![disabled](https://shields.io/badge/-disabled-orange) [![GitHub stars](https://img.shields.io/github/stars/Kampfkarren/selene?cacheSeconds=3600)](https://github.com/Kampfkarren/selene) |
+| [**stylua**](lua_stylua.md)<br/>[_LUA_STYLUA_](lua_stylua.md)         | [![GitHub stars](https://img.shields.io/github/stars/JohnnyMorganz/StyLua?cacheSeconds=3600)](https://github.com/JohnnyMorganz/StyLua)                                                    |
 
 ## Linted files
 
@@ -34,15 +34,7 @@ description: luacheck, selene, stylua are available to analyze LUA files in Mega
 
 ### Installation
 
-- Dockerfile commands :
-```dockerfile
-RUN wget --tries=5 https://www.lua.org/ftp/lua-5.3.5.tar.gz -O - -q | tar -xzf - \
-    && cd lua-5.3.5 \
-    && make linux \
-    && make install \
-    && cd .. && rm -r lua-5.3.5/
-
-```
-
 - APK packages (Linux):
-  - [readline-dev](https://pkgs.alpinelinux.org/packages?branch=v3.22&arch=x86_64&name=readline-dev)
+  - [lua5.3](https://pkgs.alpinelinux.org/packages?branch=v3.24&arch=x86_64&name=lua5.3)
+  - [lua5.3-dev](https://pkgs.alpinelinux.org/packages?branch=v3.24&arch=x86_64&name=lua5.3-dev)
+  - [readline-dev](https://pkgs.alpinelinux.org/packages?branch=v3.24&arch=x86_64&name=readline-dev)

@@ -49,7 +49,7 @@ Configuration is assisted with autocompletion and validation in most commonly us
 | **LINTER_RULES_PATH**                                                | `.github/linters`                             | Directory for all linter configuration rules.<br/> Can be a local folder or a remote URL (ex: `https://raw.githubusercontent.com/some_org/some_repo/mega-linter-rules` )                                   |
 | **LOG_FILE**                                                         | `mega-linter.log`                             | The file name for outputting logs. All output is sent to the log file regardless of `LOG_LEVEL`. Use `none` to not generate this file.                                                                     |
 | **LOG_LEVEL**                                                        | `INFO`                                        | How much output the script will generate to the console. One of `INFO`, `DEBUG`, `WARNING` or `ERROR`.                                                                                                     |
-| **MARKDOWN_DEFAULT_STYLE**                                           | `markdownlint`                                | Markdown default style to check/apply. `markdownlint`,`remark-lint`                                                                                                                                        |
+| **MARKDOWN_DEFAULT_STYLE**                                           | `markdownlint`                                | Markdown default style to check/apply. `markdownlint`,`remark-lint`,`rumdl`                                                                                                                                |
 | **MEGALINTER_CONFIG**                                                | `.mega-linter.yml`                            | Name of MegaLinter configuration file. Can be defined remotely, in that case set this environment variable with the remote URL of `.mega-linter.yml` config file                                           |
 | **MEGALINTER_FILES_TO_LINT**                                         | \[\]                                          | Comma-separated list of files to analyze. Using this variable will bypass other file listing methods                                                                                                       |
 | **PARALLEL**                                                         | `true`                                        | Process linters in parallel to improve overall MegaLinter performance. If true, linters of same language or formats are grouped in the same parallel process to avoid lock issues if fixing the same files |
@@ -194,23 +194,53 @@ Thanks to this feature, you only need to [**trust MegaLinter and its internal py
 
 You can add secured variables to the default list using configuration property **SECURED_ENV_VARIABLES** in .mega-linter.yml or in an environment variable (priority is given to ENV variables above `.mega-linter.yml` property).
 
-SECURED_ENV_VARIABLES_DEFAULT contains:
+SECURED_ENV_VARIABLES_DEFAULT contains exact names and (regular expressions) matching patterns for commonly used sensitive environment variables:
 
-- GITHUB_TOKEN
 - PAT
 - SYSTEM_ACCESSTOKEN
-- GIT_AUTHORIZATION_BEARER
-- CI_JOB_TOKEN
-- GITLAB_ACCESS_TOKEN_MEGALINTER
-- GITLAB_CUSTOM_CERTIFICATE
-- WEBHOOK_REPORTER_BEARER_TOKEN
-- NPM_TOKEN
-- DOCKER_USERNAME
-- DOCKER_PASSWORD
-- CODECOV_TOKEN
-- GCR_USERNAME
-- GCR_PASSWORD
-- SMTP_PASSWORD
+- (^|_)(USERNAME)($|_)
+- (^|_)(PASSWORD|PASSWD|PASS|PWD)($|_)
+- (^|_)(TOKEN|ID_TOKEN|ACCESS_TOKEN|REFRESH_TOKEN|BEARER)($|_)
+- (^|_)(SECRET|SECRETS)($|_)
+- (^|_)(API_KEY|APP_KEY|CLIENT_ID|CLIENT_SECRET|CLIENT_KEY|SECRET_KEY|ACCESS_KEY|ACCESS_KEY_ID|PRIVATE_KEY|SSH_KEY|SIGNING_KEY|ENCRYPTION_KEY|LICENSE_KEY)($|_)
+- (^|_)(AUTH|AUTHORIZATION)($|_)
+- (^|_)(CERT|CERTIFICATE|CA_BUNDLE|KUBECONFIG)($|_)
+- (^|_)(CONNECTION_STRING|DATABASE_URL|DB_URL|DSN)($|_)
+- (GOOGLE_APPLICATION_CREDENTIALS)
+- (GCP_SERVICE_ACCOUNT.*)
+- (SFDX_CLIENT_ID_.*)
+- (SFDX_CLIENT_KEY_.*)
+- (^|_)(SLACK|DISCORD|TEAMS|WEBHOOK)_URL($|_)
+
+This compact list is intentionally pattern-based: variables such as GITHUB_TOKEN, CI_JOB_TOKEN, NPM_TOKEN, GIT_AUTHORIZATION_BEARER, AWS_SECRET_ACCESS_KEY, AZURE_CLIENT_SECRET, OPENAI_API_KEY, DOCKER_PASSWORD, and SMTP_PASSWORD are hidden through these broader matchers.
+
+### Security boundaries and threat model
+
+When a linter or plugin command is executed, MegaLinter builds a child-process environment where matched sensitive variables are replaced with HIDDEN_BY_MEGALINTER.
+
+This means:
+
+- The original value of a matched environment variable is not accessible from that environment variable entry in the child process.
+
+This does not mean full sandboxing. A malicious dependency can still attempt to collect secrets from other channels, such as:
+
+- Unmatched variables (for example after custom overrides of SECURED_ENV_VARIABLES_DEFAULT)
+- Variables explicitly unhidden with (linter-key)_UNSECURED_ENV_VARIABLES
+- Files mounted in the workspace, command arguments, or generated config files
+- External credential sources (cloud metadata services, secret managers, network endpoints)
+
+To maximize protection:
+
+- Keep SECURED_ENV_VARIABLES_DEFAULT unchanged when possible
+- Add your project-specific patterns with SECURED_ENV_VARIABLES
+- Minimize extra credentials exposed to the MegaLinter runtime
+
+Example (compromised dependency scenario):
+
+- If a linter dependency (for example axios) is compromised and executes malicious code, it can read the environment passed to that linter process.
+- In that environment, matched variables are already replaced by HIDDEN_BY_MEGALINTER.
+- So reading GITHUB_TOKEN, NPM_TOKEN, OPENAI_API_KEY, or AWS_SECRET_ACCESS_KEY from the process environment returns HIDDEN_BY_MEGALINTER, not the original secret value.
+- The same attack could still try to obtain secrets from other channels listed above (files, arguments, external services, etc.).
 
 Example of adding extra secured variables `.mega-linter.yml`:
 

@@ -1,3 +1,4 @@
+---
 descriptor_id: RUST
 descriptor_type: language
 descriptor_flavors:
@@ -37,6 +38,10 @@ linters:
     install:
       cargo:
         - clippy
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       vscode:
         - name: rust-analyzer

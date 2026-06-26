@@ -3,6 +3,26 @@
 :wave: Hi there!
 We're thrilled that you'd like to contribute to this project. Your help is essential for keeping it great.
 
+## Claude Code
+
+MegaLinter ships with a [`CLAUDE.md`](../CLAUDE.md) file and a set of Claude Code skills that automate the most common contribution tasks. If you use [Claude Code](https://claude.ai/code), these skills handle the repetitive work so you can focus on the logic.
+
+### Available skills
+
+| Skill                                       | What it does                                                              |
+|---------------------------------------------|---------------------------------------------------------------------------|
+| `/add-linter [name]`                        | Guided workflow: descriptor, fixtures, build, changelog                   |
+| `/update-linter-version [linter] [version]` | Bump a linter's pinned version and rebuild                                |
+| `/review-descriptor [name]`                 | Audit a descriptor YAML for completeness and correctness                  |
+| `/fix-linter-test [name]`                   | Debug a failing linter test (fixtures, regex, Docker)                     |
+| `/add-reporter [name]`                      | Add a new output reporter                                                 |
+| `/add-flavor [name]`                        | Add a new Docker flavor                                                   |
+| `/build`                                    | Run `make megalinter-build` to regenerate all generated files             |
+| `/diagnose-config`                          | Debug a `.mega-linter.yml` configuration                                  |
+| `/fix-security-issue [CVE]`                 | Handle CVE reports from trivy / osv-scanner (upgrade or justified ignore) |
+
+See [`CLAUDE.md`](../CLAUDE.md) for architecture notes, coding conventions, and the full list of agents and rules that Claude Code uses in this repository.
+
 ## How to Contribute
 
 ### 1. Create an issue
@@ -67,20 +87,23 @@ Consider sponsoring the maintainer via [GitHub](https://github.com/sponsors/nvui
 7. Pat yourself on the back and wait for your pull request to be reviewed and merged.
 
 Maintainers with write access can also comment on pull requests with a command to run the build script on the PR, for example:
+
 ```text
 /build
 ```
 
 Available commands can be listed with the help command by posting the following comment:
+
 ```text
 /help
 ```
+
 Which returns:
 >
 > Command | Description
 > --- | ---
 > /build | Updates the Dockerfile, documentation, and other files from the yml descriptors
-> /build [ref=…]| Same as /build, but executes workflow in any branch using the ref named argument. The reference can be a branch, tag, or a commit SHA. This can be useful to test workflows in PR branches before merging.
+> /build [ref=…] | Same as /build, but executes workflow in any branch using the ref named argument. The reference can be a branch, tag, or a commit SHA. This can be useful to test workflows in PR branches before merging.
 > /help | Returns this help message
 
 ### Without write access
@@ -125,7 +148,6 @@ MegaLinter uses **uv** (fast Python package installer) and **hatch** (modern Pyt
 
    ```toml
    dependencies = [
-     "azure-devops==6.0.0b4",
      "new-package>=1.0.0",  # Add your package here
      "commentjson",
      # ... other dependencies
@@ -151,6 +173,7 @@ MegaLinter uses **uv** (fast Python package installer) and **hatch** (modern Pyt
 #### Upgrading Python Packages
 
 1. **Update version in pyproject.toml**: Change the version constraint
+
    ```toml
    "package-name>=2.0.0",  # Updated from 1.0.0
    ```
@@ -236,6 +259,8 @@ Once you think everything is correct run `make megalinter-build --doc` or  `bash
 
 ### Add a new linter
 
+> **With Claude Code**: run `/add-linter [name]` for a guided, step-by-step workflow that handles the descriptor, fixtures, build, and changelog automatically.
+
 Each linter must:
 
 - Be defined in a descriptor file. Few properties are required ([see json schema documentation](https://megalinter.io/json-schemas/descriptor.html)), but please think to input doc URLs and `ide` section for documentation
@@ -273,16 +298,33 @@ For those cases, it's important to have the possibility to run the tests inside 
 2. Execute the following commands in a ***.sh** script. Example:
 
 ```bash
-LINTER="spell_misspell"
-docker buildx build -f linters/$LINTER/Dockerfile . --tag $LINTER
-docker run -e TEST_CASE_RUN=true -e OUTPUT_DETAIL=detailed -e TEST_KEYWORDS="${LINTER}" -e MEGALINTER_VOLUME_ROOT="." -v "/var/run/docker.sock:/var/run/docker.sock:rw" -v $(pwd):/tmp/lint $LINTER
+#!/bin/sh
+
+# Taken from: https://megalinter.io/latest/supported-linters/
+LINTER="api_spectral"
+# If you want to build for ARM: linux/arm64
+PLATFORM=linux/amd64
+# If you want to run a specific test such as test_failure, set to: "${LINTER}_test and test_failure"
+TEST_KEYWORDS="${LINTER}_test"
+
+docker buildx build \
+  --platform $PLATFORM \
+  --file linters/$LINTER/Dockerfile \
+  --tag $LINTER \
+  .
+
+docker run \
+  --rm \
+  --env TEST_CASE_RUN=true \
+  --env OUTPUT_DETAIL=detailed \
+  --env TEST_KEYWORDS="${TEST_KEYWORDS}" \
+  --env MEGALINTER_VOLUME_ROOT="." \
+  --volume "/var/run/docker.sock:/var/run/docker.sock:rw" \
+  --volume "$(pwd):/tmp/lint" \
+  $LINTER
 ```
 
-In the above example, it builds the **misspell** linter image and then runs its tests. To do the same for another linter you would have to:
-
-1. Change the path to the Dockerfile to the appropriate Dockerfile
-2. Change the **tag** in the 2 places (docker buildx build and docker run)
-3. Change the value of **TEST_KEYWORDS_TO_USE** which is the one that's responsible for finding the tests of the particular linter
+In the above example, it builds the **spectral** linter image and then runs its tests.
 
 ### CI/CT/CD
 

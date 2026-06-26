@@ -19,6 +19,7 @@ The following list of items can/must be overridden on custom linter local class:
                                                  Default: "\\d+(\\.\\d+)+"
 
 """
+
 import errno
 import json
 import logging
@@ -71,6 +72,7 @@ class Linter:
         self.test_format_fix_file_extensions = []
         self.test_format_fix_regex_exclude = None
         self.activation_rules = []
+        self.activation_skip_reason = None
         self.test_variables = {}
         # Array of strings defining file extensions. Ex: ['.js','.cjs', '']
         self.file_extensions = []
@@ -84,6 +86,7 @@ class Linter:
         self.cli_lint_ignore_arg_name = None
         self.final_ignore_file = None
         # Other
+        self.files_separator = None
         self.files_sub_directory = None
         self.file_contains_regex = []
         self.file_contains_regex_extensions = []
@@ -129,10 +132,14 @@ class Linter:
         )  # Arguments from config, defined in <LINTER_KEY>_ARGUMENTS variable
         # Extra arguments to send to cli everytime, just before file argument
         self.cli_lint_extra_args_after = []
+        self.cli_lint_mode_file_extra_args_after = []
+        self.cli_lint_mode_list_of_files_extra_args_after = []
+        self.cli_lint_mode_project_extra_args_after = []
         self.cli_lint_errors_count = None
         self.cli_lint_errors_regex = None
         self.cli_lint_warnings_count = None
         self.cli_lint_warnings_regex = None
+        self.common_linter_errors = []
         # Default arg name for configurations to use in linter version call
         self.cli_version_arg_name = "--version"
         self.cli_version_extra_args = []  # Extra arguments to send to cli everytime
@@ -145,12 +152,13 @@ class Linter:
         # If linter --version doesn't return 0 when it's in success, override. ex: 1
         self.version_command_return_code = 0
 
-        self.log_lines_pre: list(str) = []
-        self.log_lines_post: list(str) = []
+        self.log_lines_pre: list[str] = []
+        self.log_lines_post: list[str] = []
 
         self.report_folder = ""
         self.reporters = []
-        self.lint_command_log: list(str) = []
+        self.lint_command_log: list[str] = []
+        self.lint_cwd_log = ""
 
         # Initialize parameters
         default_params = {
@@ -415,9 +423,6 @@ class Linter:
         elif self.descriptor_id in params["disable_descriptors"]:
             self.is_active = False
             strategies["DISABLE"] = True
-        elif self.name in params["disable_linters"]:
-            self.is_active = False
-            strategies["DISABLE_LINTERS"] = True
         elif self.descriptor_id in params["enable_descriptors"]:
             self.is_active = True
             strategies["ENABLE"] = True
@@ -447,7 +452,9 @@ class Linter:
             strategies["VALIDATE"] = True
         # check activation rules
         if self.is_active is True and len(self.activation_rules) > 0:
-            self.is_active = utils.check_activation_rules(self.activation_rules, self)
+            self.is_active, self.activation_skip_reason = utils.check_activation_rules(
+                self.activation_rules, self
+            )
 
         strategiesUsed = format(
             ", ".join("{0}".format(k) for k, v in strategies.items() if v)
@@ -493,9 +500,19 @@ class Linter:
         else:
             self.apply_fixes = False
 
-        if self.apply_fixes:
+        # Check that the linter is configured to be able to apply fixes
+        if self.apply_fixes is True and (
+            self.cli_lint_fix_arg_name is not None
+            or len(self.cli_lint_fix_remove_args) > 0
+            or str(self.cli_executable_fix) != str(self.cli_executable)
+        ):
             logging.debug(
                 f"[Apply Fixes] is enabled for + {self.name} ({self.descriptor_id})"
+            )
+        elif self.apply_fixes is True:
+            self.apply_fixes = False
+            logging.debug(
+                f"[Apply Fixes] cannot be enabled for {self.name} (descriptor has no fix options configured)"
             )
         else:
             logging.debug(
@@ -504,47 +521,53 @@ class Linter:
 
     # Manage configuration variables
     def load_config_vars(self, params):
+        _sentinel = object()
         # Configuration file name: try first NAME + _FILE_NAME, then LANGUAGE + _FILE_NAME
         # _CONFIG_FILE = _FILE_NAME (config renaming but keeping config ascending compatibility)
-        if config.exists(self.request_id, self.name + "_CONFIG_FILE"):
-            self.config_file_name = config.get(
-                self.request_id, self.name + "_CONFIG_FILE"
-            )
+        _val = config.get(self.request_id, self.name + "_CONFIG_FILE", _sentinel)
+        if _val is not _sentinel:
+            self.config_file_name = _val
             self.update_active_if_file_found()
-        elif config.exists(self.request_id, self.descriptor_id + "_CONFIG_FILE"):
-            self.config_file_name = config.get(
-                self.request_id, self.descriptor_id + "_CONFIG_FILE"
+        else:
+            _val = config.get(
+                self.request_id, self.descriptor_id + "_CONFIG_FILE", _sentinel
             )
-            self.update_active_if_file_found()
-        elif config.exists(self.request_id, self.name + "_FILE_NAME"):
-            self.config_file_name = config.get(
-                self.request_id, self.name + "_FILE_NAME"
-            )
-            self.update_active_if_file_found()
-        elif config.exists(self.request_id, self.descriptor_id + "_FILE_NAME"):
-            self.config_file_name = config.get(
-                self.request_id, self.descriptor_id + "_FILE_NAME"
-            )
-            self.update_active_if_file_found()
+            if _val is not _sentinel:
+                self.config_file_name = _val
+                self.update_active_if_file_found()
+            else:
+                _val = config.get(self.request_id, self.name + "_FILE_NAME", _sentinel)
+                if _val is not _sentinel:
+                    self.config_file_name = _val
+                    self.update_active_if_file_found()
+                else:
+                    _val = config.get(
+                        self.request_id, self.descriptor_id + "_FILE_NAME", _sentinel
+                    )
+                    if _val is not _sentinel:
+                        self.config_file_name = _val
+                        self.update_active_if_file_found()
         # Ignore file name: try first NAME + _FILE_NAME, then LANGUAGE + _FILE_NAME
         if self.cli_lint_ignore_arg_name is not None:
-            if config.exists(self.request_id, self.name + "_IGNORE_FILE"):
-                self.ignore_file_name = config.get(
-                    self.request_id, self.name + "_IGNORE_FILE"
+            _val = config.get(self.request_id, self.name + "_IGNORE_FILE", _sentinel)
+            if _val is not _sentinel:
+                self.ignore_file_name = _val
+            else:
+                _val = config.get(
+                    self.request_id, self.descriptor_id + "_IGNORE_FILE", _sentinel
                 )
-            elif config.exists(self.request_id, self.descriptor_id + "_IGNORE_FILE"):
-                self.ignore_file_name = config.get(
-                    self.request_id, self.descriptor_id + "_IGNORE_FILE"
-                )
+                if _val is not _sentinel:
+                    self.ignore_file_name = _val
         # Linter rules path: try first NAME + _RULE_PATH, then LANGUAGE + _RULE_PATH
-        if config.exists(self.request_id, self.name + "_RULES_PATH"):
-            self.linter_rules_path = config.get(
-                self.request_id, self.name + "_RULES_PATH"
+        _val = config.get(self.request_id, self.name + "_RULES_PATH", _sentinel)
+        if _val is not _sentinel:
+            self.linter_rules_path = _val
+        else:
+            _val = config.get(
+                self.request_id, self.descriptor_id + "_RULES_PATH", _sentinel
             )
-        elif config.exists(self.request_id, self.descriptor_id + "_RULES_PATH"):
-            self.linter_rules_path = config.get(
-                self.request_id, self.descriptor_id + "_RULES_PATH"
-            )
+            if _val is not _sentinel:
+                self.linter_rules_path = _val
         # Linter config file:
         # 0: LINTER_DEFAULT set in user config: let the linter find it, don't reference it in cli arguments
         # 1: http rules path: fetch remove file and copy it locally (then delete it after linting)
@@ -824,8 +847,20 @@ class Linter:
             self.active_only_if_file_found.append(self.config_file_name)
 
     # Processes the linter
-    def run(self, run_commands_before_linters=None, run_commands_after_linters=None):
+    def run(
+        self,
+        run_commands_before_linters=None,
+        run_commands_after_linters=None,
+        skip_console_reporter=False,
+    ):
         self.start_perf = perf_counter()
+
+        # Pre-compute subprocess environment once per linter run to avoid
+        # rebuilding secured-variable regexes on every file
+        self._cached_subprocess_env = {
+            **config.build_env(self.request_id, True, self.unsecured_env_variables),
+            "FORCE_COLOR": "0",
+        }
 
         # Initialize linter reports
         for reporter in self.reporters:
@@ -972,24 +1007,34 @@ class Linter:
         self.elapsed_time_s = perf_counter() - self.start_perf
         for reporter in self.reporters:
             try:
+                # Skip console reporter when running in parallel workers;
+                # it will be produced in the main process to avoid interleaved
+                # CI log section markers (::group::/::endgroup::)
+                if skip_console_reporter and reporter.name == "CONSOLE":
+                    continue
                 reporter.produce_report()
             except Exception as e:
                 logging.error("Unable to process reporter " + reporter.name + str(e))
 
         return self
 
-    def replace_vars(self, variables):
-        variables_with_replacements = []
-        for txt in variables:
-            if "{{SARIF_OUTPUT_FILE}}" in txt:
-                txt = txt.replace("{{SARIF_OUTPUT_FILE}}", self.sarif_output_file)
-            elif "{{REPORT_FOLDER}}" in txt:
-                txt = txt.replace("{{REPORT_FOLDER}}", self.report_folder)
-            elif "{{WORKSPACE}}" in txt:
-                txt = txt.replace("{{WORKSPACE}}", self.workspace)
-            variables_with_replacements += [txt]
+    def replace_vars(self, args, additional_variables=None):
+        default_variables = {
+            "{{SARIF_OUTPUT_FILE}}": self.sarif_output_file,
+            "{{REPORT_FOLDER}}": self.report_folder,
+            "{{WORKSPACE}}": self.workspace,
+        }
+        merged_map = default_variables
+        if additional_variables is not None:
+            merged_map.update(additional_variables)
+        args_with_replacements = []
+        for txt in args:
+            for key in merged_map:
+                if key in txt:
+                    txt = txt.replace(key, merged_map[key])
+            args_with_replacements += [txt]
 
-        return variables_with_replacements
+        return args_with_replacements
 
     def update_files_lint_results(
         self,
@@ -1100,11 +1145,15 @@ class Linter:
     # noinspection PyMethodMayBeStatic
     def execute_lint_command(self, command):
         cwd = os.path.abspath(self.workspace)
+        self.lint_cwd_log = cwd
         logging.debug(f"[{self.linter_name}] CWD: {cwd}")
-        subprocess_env = {
-            **config.build_env(self.request_id, True, self.unsecured_env_variables),
-            "FORCE_COLOR": "0",
-        }
+        # Use pre-computed env from run(), fall back to building it if called standalone
+        subprocess_env = getattr(self, "_cached_subprocess_env", None)
+        if subprocess_env is None:
+            subprocess_env = {
+                **config.build_env(self.request_id, True, self.unsecured_env_variables),
+                "FORCE_COLOR": "0",
+            }
         if isinstance(command, str):
             self.lint_command_log.append(command)
             # Call linter with a sub-process
@@ -1155,8 +1204,26 @@ class Linter:
                 return_stdout = (
                     f"Fatal error while calling {self.linter_name}: {str(err)}"
                 )
+        return_code, return_stdout = self.apply_common_linter_errors(
+            return_code, return_stdout
+        )
         self.manage_sarif_output(return_stdout)
         # Return linter result
+        return return_code, return_stdout
+
+    def apply_common_linter_errors(self, return_code, return_stdout):
+        if return_code == 0 or not self.common_linter_errors:
+            return return_code, return_stdout
+        for entry in self.common_linter_errors:
+            identifier = entry.get("identifier", "")
+            pattern = entry.get("regex")
+            message = entry.get("message", "")
+            if not pattern or not message:
+                continue
+            if re.search(pattern, return_stdout or ""):
+                block = f"[{identifier}] {message}" if identifier else message
+                return_stdout = (return_stdout or "") + "\n\n" + block
+                logging.warning(f"[{self.linter_name}] {block}")
         return return_code, return_stdout
 
     def manage_sarif_output(self, return_stdout):
@@ -1375,8 +1442,14 @@ class Linter:
     def build_lint_command(self, file=None) -> list:
         cmd = [*self.cli_executable]
 
+        additional_replace_variables = {
+            "{{FILE}}": file,
+        }
+
         # Add other lint cli arguments if defined
-        self.cli_lint_extra_args = self.replace_vars(self.cli_lint_extra_args)
+        self.cli_lint_extra_args = self.replace_vars(
+            self.cli_lint_extra_args, additional_replace_variables
+        )
         cmd += self.cli_lint_extra_args
 
         # Add fix argument if defined
@@ -1393,7 +1466,9 @@ class Linter:
             self.try_fix = True
 
         # Add user-defined extra arguments if defined
-        self.cli_lint_user_args = self.replace_vars(self.cli_lint_user_args)
+        self.cli_lint_user_args = self.replace_vars(
+            self.cli_lint_user_args, additional_replace_variables
+        )
         cmd += self.cli_lint_user_args
 
         # Add config arguments if defined (except for case when no_config_if_fix is True)
@@ -1430,9 +1505,28 @@ class Linter:
 
         # Add other lint cli arguments after other arguments if defined
         self.cli_lint_extra_args_after = self.replace_vars(
-            self.cli_lint_extra_args_after
+            self.cli_lint_extra_args_after, additional_replace_variables
         )
         cmd += self.cli_lint_extra_args_after
+
+        if self.cli_lint_mode == "file":
+            self.cli_lint_mode_file_extra_args_after = self.replace_vars(
+                self.cli_lint_mode_file_extra_args_after,
+            )
+
+            cmd += self.cli_lint_mode_file_extra_args_after
+        elif self.cli_lint_mode == "list_of_files":
+            self.cli_lint_mode_list_of_files_extra_args_after = self.replace_vars(
+                self.cli_lint_mode_list_of_files_extra_args_after,
+            )
+
+            cmd += self.cli_lint_mode_list_of_files_extra_args_after
+        elif self.cli_lint_mode == "project":
+            self.cli_lint_mode_project_extra_args_after = self.replace_vars(
+                self.cli_lint_mode_project_extra_args_after,
+            )
+
+            cmd += self.cli_lint_mode_project_extra_args_after
 
         # Some linters/formatters update files by default.
         # To avoid that, declare -megalinter-fix-flag as cli_lint_fix_arg_name
@@ -1452,7 +1546,10 @@ class Linter:
 
         # If mode is "list of files", append all files as cli arguments
         elif self.cli_lint_mode == "list_of_files":
-            cmd += self.files
+            if self.files_separator is not None:
+                cmd += [self.files_separator.join(self.files)]
+            else:
+                cmd += self.files
         return self.manage_docker_command(cmd)
 
     # Manage ignore arguments

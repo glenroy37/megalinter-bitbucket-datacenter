@@ -2,6 +2,7 @@
 """
 Output results in console
 """
+
 import copy
 import json
 import logging
@@ -17,6 +18,7 @@ class JsonReporter(Reporter):
     report_type = "simple"
     max_depth = 5
     megalinter_fields = [
+        "request_id",
         "linters",
         "reporters",
         "report_folder",

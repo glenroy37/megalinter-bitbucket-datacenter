@@ -1,9 +1,12 @@
-import { optionsDefinition } from "./options.js"
+import { optionsDefinition, KNOWN_CONTAINER_ENGINES } from "./options.js"
+import { expandEnvEntries } from "./env-parser.js";
+import { listVars } from "./list-vars.js";
 import { spawnSync } from "child_process";
 import { default as c } from 'chalk';
 import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import os from "os";
 import which from "which";
 import { default as fs } from "fs-extra";
 import { MegaLinterUpgrader } from "./upgrade.js";
@@ -25,6 +28,14 @@ export class MegaLinterRunner {
       }
       console.info(outputString);
       return { status: 0, stdout: outputString };
+    }
+
+    // List MegaLinter env variables (optionally filtered)
+    if (options.listVars) {
+      const pattern = options._ && options._.length ? options._[0] : null;
+      const { stdout } = listVars({ pattern, asJson: options.json === true });
+      console.log(stdout);
+      return { status: 0, stdout };
     }
 
     // Show version
@@ -72,12 +83,19 @@ export class MegaLinterRunner {
 
     // Run upgrader from v4 to v5
     if (options.upgrade) {
-      const megaLinterUpgrader = new MegaLinterUpgrader();
+      const megaLinterUpgrader = new MegaLinterUpgrader({
+        noPrompt: options.prompt === false,
+      });
       await megaLinterUpgrader.run();
       return { status: 0 };
     }
 
     if (options.codetotal) {
+      console.warn(
+        c.yellow(
+          "[WARNING] CodeTotal is not actively maintained. The --codetotal integration is kept for legacy users and may be removed in a future major release.",
+        ),
+      );
       const codeTotalRunner = new CodeTotalRunner(options);
       await codeTotalRunner.run();
       return { status: 0 }
@@ -85,8 +103,10 @@ export class MegaLinterRunner {
 
     // Build MegaLinter docker image name with flavor and release version
     this.containerEngine = options.containerEngine || "docker";
-    if (this.containerEngine !== "docker" && this.containerEngine !== "podman") {
-      throw new Error(`Invalid container engine: ${this.containerEngine}. Supported engines are 'docker' and 'podman'.`);
+    if (!KNOWN_CONTAINER_ENGINES.includes(this.containerEngine)) {
+      throw new Error(
+        `Invalid container engine: ${this.containerEngine}. Supported engines are ${KNOWN_CONTAINER_ENGINES.join(", ")}.`,
+      );
     }
     const release = options.release in ["stable"] ? DEFAULT_RELEASE : options.release;
     const dockerImageName =
@@ -165,6 +185,31 @@ export class MegaLinterRunner {
 
     // Build docker run options
     const lintPath = path.resolve(options.path || ".");
+    const dotenvPath = path.join(lintPath, ".env");
+    const envVarsFromDotenv = [];
+    let emptyEnvFile = null;
+    if (fs.existsSync(dotenvPath)) {
+      const dotenvContent = await fs.readFile(dotenvPath, "utf8");
+      dotenvContent.split(/\r?\n/).forEach((line) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine || trimmedLine.startsWith("#")) {
+          return;
+        }
+        const equalIndex = trimmedLine.indexOf("=");
+        if (equalIndex === -1) {
+          return;
+        }
+        const key = trimmedLine.slice(0, equalIndex).trim();
+        const value = trimmedLine.slice(equalIndex + 1).trim();
+        if (!key) {
+          return;
+        }
+        envVarsFromDotenv.push(`${key}=${value}`);
+      });
+      const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "megalinter-"));
+      emptyEnvFile = path.join(tmpDir, "empty.env");
+      await fs.writeFile(emptyEnvFile, "");
+    }
     const commandArgs = ["run", "--platform", imagePlatform];
     const removeContainer = options["removeContainer"] ? true : options["noRemoveContainer"] ? false : true;
     if (removeContainer) {
@@ -175,6 +220,18 @@ export class MegaLinterRunner {
     }
     commandArgs.push(...["-v", "/var/run/docker.sock:/var/run/docker.sock:rw"]);
     commandArgs.push(...["-v", `${lintPath}:/tmp/lint:rw`]);
+    if (options["userMap"] === true) {
+      const runtimeUid =
+        typeof process.getuid === "function" ? process.getuid() : 1000;
+      const runtimeGid =
+        typeof process.getgid === "function" ? process.getgid() : 1000;
+      commandArgs.push(...["-e", `MEGALINTER_UID=${runtimeUid}`]);
+      commandArgs.push(...["-e", `MEGALINTER_GID=${runtimeGid}`]);
+      commandArgs.push(...["-e", "HOME=/home/megalinter"]);
+    }
+    if (emptyEnvFile) {
+      commandArgs.push(...["-v", `${emptyEnvFile}:/tmp/lint/.env:ro`]);
+    }
     if (options.fix === true) {
       commandArgs.push(...["-e", "APPLY_FIXES=all"]);
     }
@@ -184,8 +241,13 @@ export class MegaLinterRunner {
     if (options.json === true) {
       commandArgs.push(...["-e", "JSON_REPORTER=true"]);
     }
+    if (envVarsFromDotenv.length > 0) {
+      for (const envVarEqualsValue of envVarsFromDotenv) {
+        commandArgs.push(...["-e", envVarEqualsValue]);
+      }
+    }
     if (options.env) {
-      for (const envVarEqualsValue of options.env) {
+      for (const envVarEqualsValue of expandEnvEntries(options.env)) {
         commandArgs.push(...["-e", envVarEqualsValue]);
       }
     }

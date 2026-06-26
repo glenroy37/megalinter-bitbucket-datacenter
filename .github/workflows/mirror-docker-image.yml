@@ -14,6 +14,13 @@ on:
         required: false
         default: 'true'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-docker-image-${{ github.event.inputs.target-image }}
+  cancel-in-progress: true
+
 jobs:
 
   copy-to-docker-hub-alpha:
@@ -22,6 +29,12 @@ jobs:
     environment:
       name: alpha
     steps:
+      # Login to docker hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       # Free disk space
       - name: Free Disk space
         if: github.event.inputs.free-space-before == 'true'
@@ -29,19 +42,22 @@ jobs:
         run: |
           sudo rm -rf /usr/local/lib/android  # will release about 10 GB if you don't need Android
           sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
-      # Login to docker hub
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          sudo rm -rf /opt/hostedtoolcache/CodeQL # large cache
+          sudo rm -rf /opt/hostedtoolcache/go # Go toolcache
       # Copy ghrc.io image to Docker Hub
       - name: Pull image from GHCR
-        run: docker pull "${{ github.event.inputs.source-image }}"
+        run: docker pull "${GITHUB_EVENT_INPUTS_SOURCE_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_SOURCE_IMAGE: ${{ github.event.inputs.source-image }}
       - name: Tag image for Docker Hub
-        run: docker tag "${{ github.event.inputs.source-image }}" "${{ github.event.inputs.target-image }}"
+        run: docker tag "${GITHUB_EVENT_INPUTS_SOURCE_IMAGE}" "${GITHUB_EVENT_INPUTS_TARGET_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_SOURCE_IMAGE: ${{ github.event.inputs.source-image }}
+          GITHUB_EVENT_INPUTS_TARGET_IMAGE: ${{ github.event.inputs.target-image }}
       - name: Push image to Docker Hub
-        run: docker push "${{ github.event.inputs.target-image }}"
+        run: docker push "${GITHUB_EVENT_INPUTS_TARGET_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_TARGET_IMAGE: ${{ github.event.inputs.target-image }}
 
   copy-to-docker-hub-main:
     if: github.ref_name == 'main' && endsWith(github.event.inputs.source-image,'beta') && endsWith(github.event.inputs.target-image,'beta')
@@ -56,19 +72,28 @@ jobs:
         run: |
           sudo rm -rf /usr/local/lib/android  # will release about 10 GB if you don't need Android
           sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
+          sudo rm -rf /opt/hostedtoolcache/CodeQL # large cache
+          sudo rm -rf /opt/hostedtoolcache/go # Go toolcache
       # Login to docker hub
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       # Copy ghrc.io image to Docker Hub
       - name: Pull image from GHCR
-        run: docker pull "${{ github.event.inputs.source-image }}"
+        run: docker pull "${GITHUB_EVENT_INPUTS_SOURCE_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_SOURCE_IMAGE: ${{ github.event.inputs.source-image }}
       - name: Tag image for Docker Hub
-        run: docker tag "${{ github.event.inputs.source-image }}" "${{ github.event.inputs.target-image }}"
+        run: docker tag "${GITHUB_EVENT_INPUTS_SOURCE_IMAGE}" "${GITHUB_EVENT_INPUTS_TARGET_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_SOURCE_IMAGE: ${{ github.event.inputs.source-image }}
+          GITHUB_EVENT_INPUTS_TARGET_IMAGE: ${{ github.event.inputs.target-image }}
       - name: Push image to Docker Hub
-        run: docker push "${{ github.event.inputs.target-image }}"
+        run: docker push "${GITHUB_EVENT_INPUTS_TARGET_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_TARGET_IMAGE: ${{ github.event.inputs.target-image }}
 
   copy-to-docker-hub-release:
     # MAJOR-RELEASE-IMPACTED
@@ -84,16 +109,25 @@ jobs:
         run: |
           sudo rm -rf /usr/local/lib/android  # will release about 10 GB if you don't need Android
           sudo rm -rf /usr/share/dotnet # will release about 20GB if you don't need .NET
+          sudo rm -rf /opt/hostedtoolcache/CodeQL # large cache
+          sudo rm -rf /opt/hostedtoolcache/go # Go toolcache
       # Login to docker hub
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       # Copy ghrc.io image to Docker Hub
       - name: Pull image from GHCR
-        run: docker pull "${{ github.event.inputs.source-image }}"
+        run: docker pull "${GITHUB_EVENT_INPUTS_SOURCE_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_SOURCE_IMAGE: ${{ github.event.inputs.source-image }}
       - name: Tag image for Docker Hub
-        run: docker tag "${{ github.event.inputs.source-image }}" "${{ github.event.inputs.target-image }}"
+        run: docker tag "${GITHUB_EVENT_INPUTS_SOURCE_IMAGE}" "${GITHUB_EVENT_INPUTS_TARGET_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_SOURCE_IMAGE: ${{ github.event.inputs.source-image }}
+          GITHUB_EVENT_INPUTS_TARGET_IMAGE: ${{ github.event.inputs.target-image }}
       - name: Push image to Docker Hub
-        run: docker push "${{ github.event.inputs.target-image }}"
+        run: docker push "${GITHUB_EVENT_INPUTS_TARGET_IMAGE}"
+        env:
+          GITHUB_EVENT_INPUTS_TARGET_IMAGE: ${{ github.event.inputs.target-image }}

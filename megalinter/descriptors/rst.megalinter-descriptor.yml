@@ -1,3 +1,4 @@
+---
 descriptor_id: RST
 descriptor_type: format
 descriptor_flavors:
@@ -38,13 +39,17 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=pypi depName=Pygments
-          ARG PIP_PYGMENTS_VERSION=2.19.2
+          ARG PIP_PYGMENTS_VERSION=2.20.0
         - |-
           # renovate: datasource=pypi depName=restructuredtext_lint
           ARG PIP_RESTRUCTUREDTEXT_LINT_VERSION=2.0.2
       pip:
         - Pygments==${PIP_PYGMENTS_VERSION}
         - restructuredtext_lint==${PIP_RESTRUCTUREDTEXT_LINT_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
   # rstcheck
   - linter_name: rstcheck
     linter_text: |
@@ -81,10 +86,14 @@ linters:
           # renovate: datasource=pypi depName=rstcheck
           ARG PIP_RSTCHECK_VERSION=6.2.5
           # renovate: datasource=pypi depName=click
-          ARG PIP_RSTCHECK_CLICK_VERSION=8.3.1
+          ARG PIP_RSTCHECK_CLICK_VERSION=8.4.2
       pip:
         - click==${PIP_RSTCHECK_CLICK_VERSION} # Downgrade click as 8.2.0 triggers and error
         - rstcheck[toml,sphinx]==${PIP_RSTCHECK_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       vscode:
         - name: vscode-restructuredtext
@@ -127,3 +136,7 @@ linters:
       pip:
         - rstfmt==${PIP_RSTFMT_VERSION}
     version_extract_regex: "(?<=rstfmt )\\d+(\\.\\d+)+"
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64

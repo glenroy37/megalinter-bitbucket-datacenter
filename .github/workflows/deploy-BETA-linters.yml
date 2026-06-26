@@ -34,6 +34,9 @@ on:
 ###############
 # Set the Job #
 ###############
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
@@ -41,48 +44,58 @@ concurrency:
 jobs:
   get-linters-matrix:
     name: Get Linters Matrix
+    if: ${{ vars.BETA_LINTERS_ENABLED != 'false' }}
     runs-on: ubuntu-latest
     outputs:
-      linters: ${{ steps.set-matrix.outputs.linters }}
+      jobs: ${{ steps.set-matrix.outputs.jobs }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
       - name: Read linters_matrix.json
         id: set-matrix
         run: |
-          echo "linters=$(cat .automation/generated/linters_matrix.json | jq -c)" >> $GITHUB_OUTPUT
+          amd_jobs=$(jq -c '[.["linux/amd64"][] | {linter: ., platform: "linux/amd64", runner: "ubuntu-latest"}]' .automation/generated/linters_matrix.json)
+          arm_jobs=$(jq -c '[.["linux/arm64"][] | {linter: ., platform: "linux/arm64", runner: "ubuntu-24.04-arm"}]' .automation/generated/linters_matrix.json)
+          jobs=$(jq -cn --argjson amd "${amd_jobs}" --argjson arm "${arm_jobs}" '$amd + $arm')
+          echo "jobs=${jobs}" >> "${GITHUB_OUTPUT}"
 
   build:
     name: BETA/Linters
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     needs: get-linters-matrix
     permissions:
       actions: write
       packages: write
+      # Require writing security events to upload SARIF file to security tab
+      security-events: write
     environment:
       name: beta
     strategy:
       fail-fast: false
       max-parallel: 10
       matrix:
-        linter: ${{ fromJson(needs.get-linters-matrix.outputs.linters) }}
-        platform: ["linux/amd64"]
+        include: ${{ fromJson(needs.get-linters-matrix.outputs.jobs) }}
     # Only run this on the main repo
     if: >-
       (
            github.repository == 'oxsecurity/megalinter'
         && !contains(github.event.head_commit.message, 'skip deploy')
         && !contains(github.event.head_commit.message, 'Release MegaLinter v')
+        && vars.BETA_LINTERS_ENABLED != 'false'
       )
     ##################
     # Load all steps #
     ##################
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Docker Metadata action
-        uses: docker/metadata-action@v5.10.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6
         id: meta
         with:
           images: |
@@ -95,7 +108,7 @@ jobs:
             type=raw,value={{date 'YYYYMMDD_HHmm'}}
 
       - name: Docker Metadata action (Docker hub)
-        uses: docker/metadata-action@v5.10.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6
         id: meta-dhub
         with:
           images: |
@@ -107,22 +120,18 @@ jobs:
             type=raw,value=
             type=raw,value={{date 'YYYYMMDD_HHmm'}}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        if: ${{ ( ( runner.arch != 'X64' || runner.os != 'Linux' ) && matrix.platform == 'linux/amd64' ) || matrix.platform != 'linux/amd64' }}
-
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
         with:
           context: .
           file: linters/${{ matrix.linter }}/Dockerfile
@@ -136,34 +145,49 @@ jobs:
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,scope=beta-linter-${{ matrix.linter }}-${{ matrix.platform }},ignore-error=true
+          cache-to: type=gha,mode=max,scope=beta-linter-${{ matrix.linter }}-${{ matrix.platform }},compression=zstd
 
       #####################################
       # Run Linter test cases #
       #####################################
       - name: Run Test Cases
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          GH_REPOSITORY: ${{ github.repository }}
+          HEAD_REF: ${{ github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          MATRIX_LINTER: ${{ matrix.linter }}
+          DOCKER_IMAGE: ${{ fromJson(steps.meta.outputs.json).tags[0] }}
+          GH_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          GITHUB_REPOSITORY=$([ "${{ github.event_name }}" == "pull_request" ] && echo "${{ github.event.pull_request.head.repo.full_name }}" || echo "${{ github.repository }}")
-          GITHUB_BRANCH=$([ "${{ github.event_name }}" == "pull_request" ] && echo "${{ github.head_ref }}" || echo "${{ github.ref_name }}")
+          GITHUB_REPOSITORY=$([ "$EVENT_NAME" == "pull_request" ] && echo "$PR_HEAD_REPO" || echo "$GH_REPOSITORY")
+          GITHUB_BRANCH=$([ "$EVENT_NAME" == "pull_request" ] && echo "$HEAD_REF" || echo "$REF_NAME")
 
-          TEST_KEYWORDS_TO_USE_UPPER="${{ matrix.linter }}"
+          TEST_KEYWORDS_TO_USE_UPPER="${MATRIX_LINTER}"
           TEST_KEYWORDS_TO_USE="${TEST_KEYWORDS_TO_USE_UPPER,,}"
           docker image ls
-          docker run -e TEST_CASE_RUN=true -e OUTPUT_FORMAT=text -e OUTPUT_FOLDER=${{ github.sha }} -e OUTPUT_DETAIL=detailed -e GITHUB_SHA=${{ github.sha }} -e GITHUB_REPOSITORY=${GITHUB_REPOSITORY} -e GITHUB_BRANCH=${GITHUB_BRANCH} -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" -e TEST_KEYWORDS="${TEST_KEYWORDS_TO_USE}" -e MEGALINTER_VOLUME_ROOT="${GITHUB_WORKSPACE}" -v "/var/run/docker.sock:/var/run/docker.sock:rw" -v ${GITHUB_WORKSPACE}:/tmp/lint ${{ fromJson(steps.meta.outputs.json).tags[0]}}
+          docker run -e TEST_CASE_RUN=true -e OUTPUT_FORMAT=text -e OUTPUT_FOLDER="${GH_SHA}" -e OUTPUT_DETAIL=detailed -e GITHUB_SHA="${GH_SHA}" -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" -e GITHUB_BRANCH="${GITHUB_BRANCH}" -e GITHUB_TOKEN="${GITHUB_TOKEN}" -e TEST_KEYWORDS="${TEST_KEYWORDS_TO_USE}" -e MEGALINTER_VOLUME_ROOT="${GITHUB_WORKSPACE}" -v "/var/run/docker.sock:/var/run/docker.sock:rw" -v "${GITHUB_WORKSPACE}:/tmp/lint" "${DOCKER_IMAGE}"
         timeout-minutes: 30
 
-      - name: Invoke Mirror docker image workflow (Standalone linter image)
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: mirror-docker-image.yml
-          inputs: '{ "source-image": "${{ fromJson(steps.meta.outputs.json).tags[0]}}", "target-image": "${{ fromJson(steps.meta-dhub.outputs.json).tags[0]}}", "free-space-before": "false" }'
+      # Docker Hub mirroring is disabled — MegaLinter is published to ghcr.io only.
+      # - name: Invoke Mirror docker image workflow (Standalone linter image)
+      #   uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 # v1
+      #   with:
+      #     workflow: mirror-docker-image.yml
+      #     inputs: '{ "source-image": "${{ fromJson(steps.meta.outputs.json).tags[0]}}", "target-image": "${{ fromJson(steps.meta-dhub.outputs.json).tags[0]}}", "free-space-before": "false" }'
 
       ##############################################
       # Check Docker image security with Trivy #
       ##############################################
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
+          # renovate: datasource=github-releases depName=aquasecurity/trivy
+          version: "v0.71.2"
           image-ref: "${{ fromJson(steps.meta.outputs.json).tags[0]}}"
           format: "table"
           exit-code: "1"
@@ -174,3 +198,9 @@ jobs:
           timeout: 10m0s
         env:
             ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Run OSV-Scanner vulnerability scanner
+      #   uses: google/osv-scanner-action/osv-scanner-action@v2.3.5
+      #   with:
+      #     scan-args: |-
+      #       --docker ${{ fromJson(steps.meta.outputs.json).tags[0]}}

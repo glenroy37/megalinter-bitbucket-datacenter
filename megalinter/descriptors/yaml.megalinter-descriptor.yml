@@ -1,3 +1,4 @@
+---
 descriptor_id: YAML
 descriptor_type: format
 descriptor_flavors:
@@ -30,7 +31,7 @@ linters:
     linter_rules_url: https://prettier.io/docs/en/options.html
     linter_rules_configuration_url: https://prettier.io/docs/en/configuration.html
     linter_rules_inline_disable_url: https://prettier.io/docs/en/ignore.html#yaml
-    linter_banner_image_url: https://github.com/standard/standard/raw/master/sticker.png
+    linter_banner_image_url: https://unpkg.com/prettier-logo@1.0.3/images/prettier-banner-light.svg
     config_file_name: ".prettierrc.json"
     cli_config_arg_name: "--config"
     cli_lint_mode: list_of_files
@@ -51,9 +52,13 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=npm depName=prettier
-          ARG NPM_PRETTIER_VERSION=3.6.2
+          ARG NPM_PRETTIER_VERSION=3.8.4
       npm:
         - "prettier@${NPM_PRETTIER_VERSION}"
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       emacs:
         - name: prettier-emacs
@@ -111,6 +116,15 @@ linters:
       - standard
     cli_lint_errors_count: regex_count
     cli_lint_errors_regex: "[0-9]+:[0-9]+:?\\s*(?:\\[?warning\\]?|\\[?error\\]?)|(?:::warning file=|::error file=)"
+    common_linter_errors:
+      - identifier: YAML_YAMLLINT_ERROR_CONFIG_INVALID
+        regex: "(invalid config: (no such rule|unknown option)|cannot read config file|YamlLintConfigError)"
+        message: |-
+          yamllint could not load `.yamllint.yml` or it references an unknown rule/option.
+          Resolutions:
+            - Validate the YAML syntax of `.yamllint.yml`.
+            - Check rule names against <https://yamllint.readthedocs.io/en/stable/rules.html>.
+            - When extending a preset, use `extends: default` (or `relaxed`), not arbitrary file paths.
     examples:
       - "yamllint myfile.yaml"
       - "yamllint -c .yamllint.yml myfile.yaml"
@@ -120,9 +134,13 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=pypi depName=yamllint
-          ARG PIP_YAMLLINT_VERSION=1.37.1
+          ARG PIP_YAMLLINT_VERSION=1.38.0
       pip:
         - yamllint==${PIP_YAMLLINT_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       emacs:
         - name: flycheck
@@ -132,6 +150,7 @@ linters:
           url: https://github.com/w0rp/ale
   # V8R
   - linter_name: v8r
+    class: V8rLinter
     linter_url: https://github.com/chris48s/v8r
     linter_repo: https://github.com/chris48s/v8r
     linter_spdx_license: MIT
@@ -162,9 +181,13 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=npm depName=v8r
-          ARG NPM_V8R_VERSION=5.1.0
+          ARG NPM_V8R_VERSION=6.1.0
       npm:
         - v8r@${NPM_V8R_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       eclipse:
         - name: native support

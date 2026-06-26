@@ -45,7 +45,7 @@ Bandit is essential for maintaining secure Python codebases and is widely used i
 
 ## bandit documentation
 
-- Version in MegaLinter: **1.9.2**
+- Version in MegaLinter: **1.9.4**
 - Visit [Official Web Site](https://bandit.readthedocs.io/en/latest/){target=_blank}
 - See [How to configure bandit rules](https://bandit.readthedocs.io/en/latest/config.html#){target=_blank}
   - If custom `.bandit.yml` config file isn't found, [.bandit.yml](https://github.com/oxsecurity/megalinter/tree/main/TEMPLATES/.bandit.yml){target=_blank} will be used
@@ -81,10 +81,10 @@ Bandit is essential for maintaining secure Python codebases and is widely used i
 
 Use bandit in your favorite IDE to catch errors before MegaLinter !
 
-|                                                                   <!-- -->                                                                   | IDE                                                  | Extension Name                                                                |                                          Install                                           |
-|:--------------------------------------------------------------------------------------------------------------------------------------------:|------------------------------------------------------|-------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------:|
-| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/sublime.ico" alt="" height="32px" class="megalinter-icon"></a> | [Sublime Text](https://www.sublimetext.com/)         | [SublimeLinter-bandit](https://github.com/SublimeLinter/SublimeLinter-bandit) |   [Visit Web Site](https://github.com/SublimeLinter/SublimeLinter-bandit){target=_blank}   |
-| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/vscode.ico" alt="" height="32px" class="megalinter-icon"></a>  | [Visual Studio Code](https://code.visualstudio.com/) | [Native Support](https://code.visualstudio.com/docs/python/linting#_bandit)   | [Visit Web Site](https://code.visualstudio.com/docs/python/linting#_bandit){target=_blank} |
+|                                                                   <!-- -->                                                                   | IDE                                                  | Extension Name                                                                            |                                                                                 Install                                                                                 |
+|:--------------------------------------------------------------------------------------------------------------------------------------------:|------------------------------------------------------|-------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/sublime.ico" alt="" height="32px" class="megalinter-icon"></a> | [Sublime Text](https://www.sublimetext.com/)         | [SublimeLinter-bandit](https://github.com/SublimeLinter/SublimeLinter-bandit)             |                                         [Visit Web Site](https://github.com/SublimeLinter/SublimeLinter-bandit){target=_blank}                                          |
+| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/vscode.ico" alt="" height="32px" class="megalinter-icon"></a>  | [Visual Studio Code](https://code.visualstudio.com/) | [Bandit by PyCQA](https://marketplace.visualstudio.com/items?itemName=pycqa.bandit-pycqa) | [![Install in VSCode](https://github.com/oxsecurity/megalinter/raw/main/docs/assets/images/btn_install_vscode.png)](vscode:extension/pycqa.bandit-pycqa){target=_blank} |
 
 ## MegaLinter Flavors
 
@@ -92,9 +92,9 @@ This linter is available in the following flavors
 
 |                                                                         <!-- -->                                                                         | Flavor                                                   | Description                         | Embedded linters |                                                                                                                                                                                         Info |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------|:------------------------------------|:----------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/images/mega-linter-square.png" alt="" height="32px" class="megalinter-icon"></a> | [all](https://megalinter.io/beta/supported-linters/)     | Default MegaLinter Flavor           |       131        |                   ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter) |
-|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/python.ico" alt="" height="32px" class="megalinter-icon"></a>        | [python](https://megalinter.io/beta/flavors/python/)     | Optimized for PYTHON based projects |        66        |     ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-python/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-python) |
-|      <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/security.ico" alt="" height="32px" class="megalinter-icon"></a>       | [security](https://megalinter.io/beta/flavors/security/) | Optimized for security              |        24        | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-security/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-security) |
+| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/images/mega-linter-square.png" alt="" height="32px" class="megalinter-icon"></a> | [all](https://megalinter.io/beta/supported-linters/)     | Default MegaLinter Flavor           |       137        |                   ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter) |
+|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/python.ico" alt="" height="32px" class="megalinter-icon"></a>        | [python](https://megalinter.io/beta/flavors/python/)     | Optimized for PYTHON based projects |        70        |     ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-python/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-python) |
+|      <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/security.ico" alt="" height="32px" class="megalinter-icon"></a>       | [security](https://megalinter.io/beta/flavors/security/) | Optimized for security              |        26        | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-security/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-security) |
 
 ## Behind the scenes
 
@@ -127,7 +127,7 @@ usage: bandit [-h] [-r] [-a {file,vuln}] [-n CONTEXT_LINES] [-c CONFIG_FILE]
               --severity-level {all,low,medium,high}] [-i |
               --confidence-level {all,low,medium,high}]
               [-f {csv,custom,html,json,sarif,sarif,screen,txt,xml,yaml}]
-              [--msg-template MSG_TEMPLATE] [-o [OUTPUT_FILE]] [-v] [-d] [-q]
+              [--msg-template MSG_TEMPLATE] [-o [OUTPUT_FILE]] [-v | -q] [-d]
               [--ignore-nosec] [-x EXCLUDED_PATHS] [-b BASELINE]
               [--ini INI_PATH] [--exit-zero] [--version]
               [targets ...]
@@ -302,12 +302,68 @@ The following tests were discovered and loaded:
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=pypi depName=bandit
-ARG PIP_BANDIT_VERSION=1.9.2
+ARG PIP_BANDIT_VERSION=1.9.4
 # renovate: datasource=pypi depName=bandit_sarif_formatter
 ARG PIP_BANDIT_SARIF_FORMATTER_VERSION=1.1.1
 ```
 
 - PIP packages (Python):
-  - [bandit==1.9.2](https://pypi.org/project/bandit/1.9.2)
+  - [bandit==1.9.4](https://pypi.org/project/bandit/1.9.4)
   - [bandit_sarif_formatter==1.1.1](https://pypi.org/project/bandit_sarif_formatter/1.1.1)
-  - [bandit[toml]==1.9.2](https://pypi.org/project/bandit[toml]/1.9.2)
+  - [bandit[toml]==1.9.4](https://pypi.org/project/bandit[toml]/1.9.4)
+
+## Known errors and resolutions
+
+When this linter fails for a known non-lint reason (remote service unavailable, malformed config, missing credentials, etc.), MegaLinter detects the pattern below in the linter output and surfaces the matching guidance.
+
+### PYTHON_BANDIT_ERROR_CONFIG_NOT_FOUND
+
+**Detection pattern (regex):**
+
+```text
+(Could not read config file|Unable to read config file|could not find config file)
+```
+
+**Resolution guidance:**
+
+```text
+bandit could not read the configuration file referenced via `--configfile` (or `.bandit.yml` / `pyproject.toml`).
+Resolutions:
+  - Confirm the config file is committed to the repository and visible at the expected path.
+  - If you customised `PYTHON_BANDIT_CONFIG_FILE`, double-check the value points to a valid file in the workspace.
+```
+
+### PYTHON_BANDIT_ERROR_CONFIG_INVALID
+
+**Detection pattern (regex):**
+
+```text
+(Error parsing file:|yaml\.scanner\.ScannerError|yaml\.parser\.ParserError|tomllib\.TOMLDecodeError|Invalid YAML)
+```
+
+**Resolution guidance:**
+
+```text
+bandit found the config file but failed to parse it (invalid YAML or TOML).
+Resolutions:
+  - Run a YAML/TOML linter against `.bandit.yml` or the `[tool.bandit]` section of `pyproject.toml`.
+  - Make sure indentation and option keys (`tests`, `skips`, `exclude_dirs`) follow the bandit schema.
+```
+
+### PYTHON_BANDIT_ERROR_PROFILE_NOT_FOUND
+
+**Detection pattern (regex):**
+
+```text
+(Unable to find profile|No tests would be run)
+```
+
+**Resolution guidance:**
+
+```text
+bandit could not load the requested test profile or every test was excluded.
+Resolutions:
+  - Check the profile name in your config.
+  - Make sure `tests` / `skips` lists reference valid plugin IDs (B101, B602, ...).
+```
+

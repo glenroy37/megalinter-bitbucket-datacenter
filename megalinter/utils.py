@@ -92,7 +92,14 @@ def get_descriptor_dir():
         return descriptor_dir
 
 
+_excluded_directories_cache: dict[str, set[str]] = {}
+
+
 def get_excluded_directories(request_id):
+    cache_key = str(request_id)
+    cached = _excluded_directories_cache.get(cache_key)
+    if cached is not None:
+        return cached
     default_excluded_dirs = [
         "__pycache__",
         ".git",
@@ -110,7 +117,9 @@ def get_excluded_directories(request_id):
         request_id, "EXCLUDED_DIRECTORIES", default_excluded_dirs
     )
     excluded_dirs += config.get_list(request_id, "ADDITIONAL_EXCLUDED_DIRECTORIES", [])
-    return set(excluded_dirs)
+    result = set(excluded_dirs)
+    _excluded_directories_cache[cache_key] = result
+    return result
 
 
 def filter_files(
@@ -283,6 +292,7 @@ def list_active_reporters_for_scope(scope, reporter_init_params):
 
 def check_activation_rules(activation_rules, linter):
     active = False
+    reason = None
     for rule in activation_rules:
         if rule["type"] == "variable":
             value = config.get(
@@ -292,8 +302,12 @@ def check_activation_rules(activation_rules, linter):
                 active = True
             else:
                 active = False
+                reason = (
+                    f"{rule['variable']}={value} "
+                    f"(set {rule['variable']}={rule['expected_value']} to activate)"
+                )
                 break
-    return active
+    return active, reason
 
 
 def file_contains(file_name: str, regex_object: Optional[Pattern[str]]) -> bool:
@@ -402,6 +416,12 @@ def get_git_context_info(request_id, path):
                 search_parent_directories=True,
             )
             repo_name = repo.working_tree_dir.split("/")[-1]
+            if branch_name is None:
+                try:
+                    branch = repo.active_branch
+                    branch_name = branch.name
+                except Exception:
+                    branch_name = "?"
         except Exception:
             repo_name = "?"
     if branch_name is None:
@@ -410,8 +430,7 @@ def get_git_context_info(request_id, path):
                 path,
                 search_parent_directories=True,
             )
-            repo_name_1 = repo.working_tree_dir.split("/")[-1]
-            branch = repo_name_1.active_branch
+            branch = repo.active_branch
             branch_name = branch.name
         except Exception:
             branch_name = "?"
@@ -595,6 +614,23 @@ def is_azure_devops_pr() -> bool:
     return config.get(None, "BUILD_REASON") == "PullRequest"
 
 
+# Bitbucket Pipelines ref: https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/
+def is_bitbucket() -> bool:
+    return config.get(None, "BITBUCKET_BUILD_NUMBER") is not None
+
+
+# Jenkins ref: https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#using-environment-variables
+def is_jenkins() -> bool:
+    return (
+        config.get(None, "JENKINS_URL") is not None
+        or config.get(None, "JENKINS_HOME") is not None
+    )
+
+
+def is_jenkins_pr() -> bool:
+    return is_jenkins() and config.get(None, "CHANGE_ID") is not None
+
+
 def is_ci() -> bool:
     return (
         True
@@ -603,6 +639,7 @@ def is_ci() -> bool:
             or is_github_actions()
             or is_gitlab_ci()
             or is_azure_pipelines()
+            or is_jenkins()
         )
         else False
     )
@@ -617,6 +654,7 @@ def is_pr() -> bool:
             or is_gitlab_mr()
             or is_gitlab_external_pr()
             or is_azure_devops_pr()
+            or is_jenkins_pr()
         )
         else False
     )

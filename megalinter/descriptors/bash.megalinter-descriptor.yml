@@ -1,3 +1,4 @@
+---
 descriptor_id: BASH
 descriptor_type: language
 descriptor_flavors:
@@ -57,6 +58,10 @@ linters:
         - |
           RUN printf '#!/bin/bash \\n\\nif [[ -x "$1" ]]; then exit 0; else echo "Error: File:[$1] is not executable"; exit 1; fi' > /usr/bin/bash-exec \
               && chmod +x /usr/bin/bash-exec
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     variables:
       - name: ERROR_ON_MISSING_EXEC_BIT
         description: If set to `false`, the `bash-exec` linter will report a warning if a shell script is not executable. If set to `true`, the `bash-exec` linter will report an error instead
@@ -102,21 +107,36 @@ linters:
     cli_help_arg_name: "--help"
     cli_lint_errors_count: regex_count
     cli_lint_errors_regex: "In .* line .*:.*\\n"
+    config_file_name: .shellcheckrc
+    cli_config_arg_name: "--rcfile="
     examples:
       - "shellcheck --color=auto --external-sources myfile.sh"
+      - "shellcheck --color=auto --external-sources --rcfile=.shellcheckrc myfile.sh"
     install:
-      cargo:
-        - shellcheck-sarif@${CARGO_SHELLCHECK_SARIF_VERSION}
       dockerfile:
         - |-
           # renovate: datasource=crate depName=shellcheck-sarif
           ARG CARGO_SHELLCHECK_SARIF_VERSION=0.8.0
+        # amd64: download prebuilt linux-x86_64 binary.
+        # arm64: compile from source — sarif-rs ships no aarch64-linux binary.
+        - |-
+          FROM alpine:3.24 AS cargo-bin-shellcheck-sarif
+          ARG CARGO_SHELLCHECK_SARIF_VERSION
+          RUN set -eu; mkdir -p /out/bin; \
+              apk add --no-cache build-base musl-dev openssl-dev openssl-libs-static pkgconfig bash perl rust cargo; \
+              cargo install --force --locked --root /out "shellcheck-sarif@${CARGO_SHELLCHECK_SARIF_VERSION}"; \
+              chmod +x /out/bin/shellcheck-sarif
+        - COPY --link --from=cargo-bin-shellcheck-sarif /out/bin/shellcheck-sarif /usr/bin/shellcheck-sarif
         # Also update shellcheck version in action.megalinter-descriptor.yml
         - |-
           # renovate: datasource=docker depName=koalaman/shellcheck
           ARG BASH_SHELLCHECK_VERSION=v0.11.0
         - FROM koalaman/shellcheck:${BASH_SHELLCHECK_VERSION} AS shellcheck
         - COPY --link --from=shellcheck /bin/shellcheck /usr/bin/shellcheck
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       emacs:
         - name: flycheck
@@ -175,9 +195,13 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=docker depName=mvdan/shfmt
-          ARG BASH_SHFMT_VERSION=v3.12.0-alpine
+          ARG BASH_SHFMT_VERSION=v3.13.1-alpine
         - FROM mvdan/shfmt:${BASH_SHFMT_VERSION} AS shfmt
         - COPY --link --from=shfmt /bin/shfmt /usr/bin/
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       emacs:
         - name: emacs-shfmt

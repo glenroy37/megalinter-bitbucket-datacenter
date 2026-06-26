@@ -3,6 +3,7 @@
 Use PowerShell to lint Powershell files
 https://github.com/PowerShell/PSScriptAnalyzer
 """
+
 import sys
 from shutil import get_terminal_size
 
@@ -11,7 +12,7 @@ from megalinter import Linter, config, utils
 
 class PowershellLinter(Linter):
     def __init__(self, params=None, linter_config=None):
-        super(PowershellLinter, self).__init__(params, linter_config)
+        super().__init__(params, linter_config)
         self.cli_executable = ["powershell"] if sys.platform == "win32" else ["pwsh"]
         self.cli_executable_help = [*self.cli_executable]
         self.cli_executable_version = [*self.cli_executable]

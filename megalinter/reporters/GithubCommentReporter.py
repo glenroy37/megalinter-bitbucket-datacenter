@@ -3,8 +3,8 @@
 GitHub Comment reporter
 Post a comment on Github Pull Requests
 """
+
 import logging
-import os
 import re
 
 import github
@@ -34,8 +34,7 @@ class GithubCommentReporter(Reporter):
         ):  # Legacy - true by default
             self.is_active = True
 
-    @property
-    def comment_marker(self):
+    def get_comment_marker(self):
         """Generate the comment marker
 
         This marker is used to find the same comment again so it can be updated.
@@ -47,12 +46,16 @@ class GithubCommentReporter(Reporter):
           <!-- megalinter: github-comment-reporter workflow='…' jobid='…' -->
 
         """
-        workflow = os.getenv("GITHUB_WORKFLOW")
-        jobid = os.getenv("GITHUB_JOB")
+        workflow = config.get(self.master.request_id, "GITHUB_WORKFLOW")
+        jobid = config.get(self.master.request_id, "GITHUB_JOB")
+        multirun_key = config.get(self.master.request_id, "MEGALINTER_MULTIRUN_KEY")
+
         workflow = workflow and f"workflow={workflow!r}"
         jobid = jobid and f"jobid={jobid!r}"
+        multirun_key = multirun_key and f"key={multirun_key!r}"
+
         identifier = " ".join(
-            ["github-comment-reporter", *filter(None, (workflow, jobid))]
+            ["github-comment-reporter", *filter(None, (workflow, jobid, multirun_key))]
         )
         return f"<!-- megalinter: {identifier} -->"
 
@@ -81,7 +84,7 @@ class GithubCommentReporter(Reporter):
                 action_run_url = ""
 
             # add comment marker, with extra newlines in between.
-            marker = self.comment_marker
+            marker = self.get_comment_marker()
             p_r_msg = "\n".join(
                 [build_markdown_summary(self, action_run_url), "", marker, ""]
             )
@@ -103,7 +106,7 @@ class GithubCommentReporter(Reporter):
                 return
             # Try to get PR from GITHUB_REF
             pr_list = []
-            ref = os.environ.get("GITHUB_REF", "")
+            ref = config.get(self.master.request_id, "GITHUB_REF", "")
             m = re.compile("refs/pull/(\\d+)/merge").match(ref)
             if m is not None:
                 pr_id = m.group(1)
@@ -114,11 +117,17 @@ class GithubCommentReporter(Reporter):
                     logging.warning(f"Could not fetch PR#{pr_id}: {e}")
             if pr_list is None or len(pr_list) == 0:
                 # If not found with GITHUB_REF, try to find PR from commit
-                commit = repo.get_commit(sha=sha)
-                pr_list = commit.get_pulls()
-                if pr_list.totalCount == 0:
-                    logging.info(
-                        "[GitHub Comment Reporter] No pull request has been found, so no comment has been posted"
+                try:
+                    commit = repo.get_commit(sha=sha)
+                    pr_list = commit.get_pulls()
+                    if pr_list.totalCount == 0:
+                        logging.info(
+                            "[GitHub Comment Reporter] No pull request has been found, so no comment has been posted"
+                        )
+                        return
+                except Exception as e:
+                    logging.warning(
+                        f"[GitHub Comment Reporter] Unable to fetch pull requests for commit {sha}: {e}"
                     )
                     return
             for pr in pr_list:

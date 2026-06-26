@@ -29,7 +29,7 @@ Cppcheck helps ensure your C/C++ code is secure, reliable, and follows best prac
 
 ## cppcheck documentation
 
-- Version in MegaLinter: **2.14.2**
+- Version in MegaLinter: **2.21.0**
 - Visit [Official Web Site](https://cppcheck.sourceforge.io/){target=_blank}
 - See [How to configure cppcheck rules](https://cppcheck.sourceforge.io/manual.html#configuration){target=_blank}
 - See [Index of problems detected by cppcheck](https://sourceforge.net/p/cppcheck/wiki/ListOfChecks/){target=_blank}
@@ -61,12 +61,12 @@ This linter is available in the following flavors
 
 |                                                                         <!-- -->                                                                         | Flavor                                                     | Description                                              | Embedded linters |                                                                                                                                                                                           Info |
 |:--------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------|:---------------------------------------------------------|:----------------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/images/mega-linter-square.png" alt="" height="32px" class="megalinter-icon"></a> | [all](https://megalinter.io/beta/supported-linters/)       | Default MegaLinter Flavor                                |       131        |                     ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter) |
-|        <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/c_cpp.ico" alt="" height="32px" class="megalinter-icon"></a>        | [c_cpp](https://megalinter.io/beta/flavors/c_cpp/)         | Optimized for pure C/C++ projects                        |        57        |         ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-c_cpp/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-c_cpp) |
-|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/cupcake.ico" alt="" height="32px" class="megalinter-icon"></a>       | [cupcake](https://megalinter.io/beta/flavors/cupcake/)     | MegaLinter for the most commonly used languages          |        89        |     ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-cupcake/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-cupcake) |
-|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/dotnet.ico" alt="" height="32px" class="megalinter-icon"></a>        | [dotnet](https://megalinter.io/beta/flavors/dotnet/)       | Optimized for C, C++, C# or VB based projects            |        65        |       ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-dotnet/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-dotnet) |
-|      <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/dotnetweb.ico" alt="" height="32px" class="megalinter-icon"></a>      | [dotnetweb](https://megalinter.io/beta/flavors/dotnetweb/) | Optimized for C, C++, C# or VB based projects with JS/TS |        74        | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-dotnetweb/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-dotnetweb) |
-|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/python.ico" alt="" height="32px" class="megalinter-icon"></a>        | [python](https://megalinter.io/beta/flavors/python/)       | Optimized for PYTHON based projects                      |        66        |       ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-python/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-python) |
+| <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/images/mega-linter-square.png" alt="" height="32px" class="megalinter-icon"></a> | [all](https://megalinter.io/beta/supported-linters/)       | Default MegaLinter Flavor                                |       137        |                     ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter) |
+|        <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/c_cpp.ico" alt="" height="32px" class="megalinter-icon"></a>        | [c_cpp](https://megalinter.io/beta/flavors/c_cpp/)         | Optimized for pure C/C++ projects                        |        60        |         ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-c_cpp/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-c_cpp) |
+|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/cupcake.ico" alt="" height="32px" class="megalinter-icon"></a>       | [cupcake](https://megalinter.io/beta/flavors/cupcake/)     | MegaLinter for the most commonly used languages          |        93        |     ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-cupcake/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-cupcake) |
+|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/dotnet.ico" alt="" height="32px" class="megalinter-icon"></a>        | [dotnet](https://megalinter.io/beta/flavors/dotnet/)       | Optimized for C, C++, C# or VB based projects            |        68        |       ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-dotnet/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-dotnet) |
+|      <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/dotnetweb.ico" alt="" height="32px" class="megalinter-icon"></a>      | [dotnetweb](https://megalinter.io/beta/flavors/dotnetweb/) | Optimized for C, C++, C# or VB based projects with JS/TS |        77        | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-dotnetweb/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-dotnetweb) |
+|       <img src="https://github.com/oxsecurity/megalinter/raw/main/docs/assets/icons/python.ico" alt="" height="32px" class="megalinter-icon"></a>        | [python](https://megalinter.io/beta/flavors/python/)       | Optimized for PYTHON based projects                      |        70        |       ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/oxsecurity/megalinter-python/beta) ![Docker Pulls](https://img.shields.io/docker/pulls/oxsecurity/megalinter-python) |
 
 ## Behind the scenes
 
@@ -117,8 +117,9 @@ Options:
     --check-config       Check cppcheck configuration. The normal code
                          analysis is disabled by this flag.
     --check-level=<level>
-                         Configure how much checking you want:
-                          * normal: Cppcheck uses some compromises in the checking so
+                         Configure how much valueflow analysis you want:
+                          * reduced: Reduce valueflow to finish checking quickly.
+                          * normal: Cppcheck uses some compromises in the analysis so
                             the checking will finish in reasonable time.
                           * exhaustive: deeper analysis that you choose when you can
                             wait.
@@ -141,9 +142,9 @@ Options:
                          be considered for evaluation.
     --config-excludes-file=<file>
                          A file that contains a list of config-excludes
-    --disable=<id>       Disable individual checks.
-                         Please refer to the documentation of --enable=<id>
-                         for further details.
+    --disable=<severity> Disable checks with the given severity.
+                         Please refer to the documentation of --enable for
+                         further details.
     --dump               Dump xml data for each translation unit. The dump
                          files have the extension .dump and contain ast,
                          tokenlist, symboldatabase, valueflow.
@@ -153,44 +154,41 @@ Options:
                          Example: '-DDEBUG=1 -D__cplusplus'.
     -E                   Print preprocessor output on stdout and don't do any
                          further processing.
-    --enable=<id>        Enable additional checks. The available ids are:
-                          * all
-                                  Enable all checks. It is recommended to only
-                                  use --enable=all when the whole program is
-                                  scanned, because this enables unusedFunction.
+    --enable=<severity>  Enable additional checks grouped by severity. The available
+                         severities are:
                           * warning
-                                  Enable warning messages
-                          * style
-                                  Enable all coding style checks. All messages
-                                  with the severities 'style', 'warning',
-                                  'performance' and 'portability' are enabled.
                           * performance
-                                  Enable performance messages
                           * portability
-                                  Enable portability messages
                           * information
-                                  Enable information messages
+                          * style
+                                  Enable checks with severities 'style', 'warning',
+                                  'performance' and 'portability'.
                           * unusedFunction
                                   Check for unused functions. It is recommended
                                   to only enable this when the whole program is
                                   scanned.
                           * missingInclude
-                                  Warn if there are missing includes.
-                         Several ids can be given if you separate them with
-                         commas. See also --std
+                                  Check for missing include files.
+                          * all
+                                  Enable all checks.
+                         Pass multiple severities as a comma-separated list.
     --error-exitcode=<n> If errors are found, integer [n] is returned instead of
                          the default '0'. '1' is returned
                          if arguments are not valid or if no input files are
                          provided. Note that your operating system can modify
                          this value, e.g. '256' can become '0'.
     --errorlist          Print a list of all the error messages in XML format.
-    --exitcode-suppressions=<file>
+    --exitcode-suppress=<spec>
+                         Used to specify an error ID which should not result in
+                         a non-zero exitcode.    --exitcode-suppressions=<file>
                          Used when certain messages should be displayed but
                          should not cause a non-zero exitcode.
-    --file-filter=<str>  Analyze only those files matching the given filter str
-                         Can be used multiple times
+    --file-filter=<str>  Analyze only those files matching the given filter str.
+                         Can be used multiple times. When str is '-', the file
+                         filter will be read from standard input. When str is '+',
+                         given files on CLI will be treated as file filters.
                          Example: --file-filter=*bar.cpp analyzes only files
-                                  that end with bar.cpp.
+                         that end with bar.cpp.
     --file-list=<file>   Specify the files to check in a text file. Add one
                          filename per line. When file is '-,' the file list will
                          be read from standard input.
@@ -212,10 +210,13 @@ Options:
                          this is not needed.
     --include=<file>
                          Force inclusion of a file before the checked file.
-    -i <dir or file>     Give a source file or source file directory to exclude
-                         from the check. This applies only to source files so
-                         header files included by source files are not matched.
-                         Directory name is matched to all parts of the path.
+    -i <str>             Ignore files that match <str>. <str> can be a filename
+                         or directory and can contain *,**,?. A file that is
+                         ignored will not be checked directly (the whole
+                         translation unit is skipped completely). Header files
+                         are checked indirectly when they are #include'd.
+                         Note: If you want to prevent warnings in some headers,
+                         use suppressions instead.
     --inconclusive       Allow that Cppcheck reports even though the analysis is
                          inconclusive.
                          There are false positives with this option. Each result
@@ -247,6 +248,13 @@ Options:
                          is 2. A larger value will mean more errors can be found
                          but also means the analysis will be slower.
     --output-file=<file> Write results to file, rather than standard error.
+    --output-format=<format>
+                        Specify the output format. The available formats are:
+                          * text
+                          * sarif
+                          * xml (deprecated)
+                          * xmlv2
+                          * xmlv3
     --platform=<type>, --platform=<file>
                          Specifies platform specific types and sizes. The
                          available builtin platforms are:
@@ -282,13 +290,13 @@ Options:
     --plist-output=<path>
                          Generate Clang-plist output files in folder.
     --project=<file>     Run Cppcheck on project. The <file> can be a Visual
-                         Studio Solution (*.sln), Visual Studio Project
+                         Studio Solution (*.sln) or (*.slnx), Visual Studio Project
                          (*.vcxproj), compile database (compile_commands.json),
                          or Borland C++ Builder 6 (*.bpr). The files to analyse,
                          include paths, defines, platform and undefines in
                          the specified file will be used.
     --project-configuration=<config>
-                         If used together with a Visual Studio Solution (*.sln)
+                         If used together with a Visual Studio Solution (*.sln) or (*.slnx)
                          or Visual Studio Project (*.vcxproj) you can limit
                          the configuration cppcheck should check.
                          For example: '--project-configuration=Release|Win32'
@@ -303,9 +311,23 @@ Options:
                          currently only possible to apply the base paths to
                          files that are on a lower level in the directory tree.
     --report-progress    Report progress messages while checking a file (single job only).
+    --report-type=<type> Add guideline and classification fields for specified coding standard.
+                         The available report types are:
+                          * normal           Default, only show cppcheck error ID and severity
+                          * autosar          Autosar
+                          * cert-c-2016      Cert C 2016
+                          * cert-cpp-2016    Cert C++ 2016
+                          * misra-c-2012     Misra C 2012
+                          * misra-c-2023     Misra C 2023
+                          * misra-c-2025     Misra C 2025
+                          * misra-cpp-2008   Misra C++ 2008
+                          * misra-cpp-2023   Misra C++ 2023
     --rule=<rule>        Match regular expression.
     --rule-file=<file>   Use given rule file. For more information, see:
                          http://sourceforge.net/projects/cppcheck/files/Articles/
+    --safety             Enable safety-certified checking mode: display checker summary, enforce
+                         stricter checks for critical errors, and return a non-zero exit code
+                         if such errors occur.
     --showtime=<mode>    Show timing information.
                          The available modes are:
                           * none
@@ -320,8 +342,6 @@ Options:
                                  Show the top 5 for each processed file
                           * top5_summary
                                  Show the top 5 summary at the end
-                          * top5
-                                 Alias for top5_file (deprecated)
     --std=<id>           Set standard.
                          The available options are:
                           * c89
@@ -410,7 +430,7 @@ Example usage:
   cppcheck -I inc1/ -I inc2/ f.cpp
 
 For more information:
-    https://files.cppchecksolutions.com/manual.pdf
+    https://cppcheck.sourceforge.io/manual.pdf
 
 Many thanks to the 3rd party libraries we use:
  * tinyxml2 -- loading project/library/ctu files.
@@ -423,4 +443,4 @@ Many thanks to the 3rd party libraries we use:
 ### Installation on mega-linter Docker image
 
 - APK packages (Linux):
-  - [cppcheck](https://pkgs.alpinelinux.org/packages?branch=v3.22&arch=x86_64&name=cppcheck)
+  - [cppcheck](https://pkgs.alpinelinux.org/packages?branch=v3.24&arch=x86_64&name=cppcheck)

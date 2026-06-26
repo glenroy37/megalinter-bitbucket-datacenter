@@ -11,10 +11,33 @@ import yaml
 
 RUN_CONFIGS = {}  # type: ignore[var-annotated]
 SKIP_DELETE_CONFIG = False
+_ENV_CACHE = None  # Cached copy of os.environ to avoid repeated copies
+DEFAULT_SECURED_ENV_VARIABLES = (
+    "PAT",
+    "SYSTEM_ACCESSTOKEN",
+    "(^|_)(USERNAME)($|_)",
+    "(^|_)(PASSWORD|PASSWD|PASS|PWD)($|_)",
+    "(^|_)(TOKEN|ID_TOKEN|ACCESS_TOKEN|REFRESH_TOKEN|BEARER)($|_)",
+    "(^|_)(SECRET|SECRETS)($|_)",
+    "(^|_)(API_KEY|APP_KEY|CLIENT_ID|CLIENT_SECRET|CLIENT_KEY|SECRET_KEY|ACCESS_KEY|ACCESS_KEY_ID|"
+    "PRIVATE_KEY|SSH_KEY|SIGNING_KEY|ENCRYPTION_KEY|LICENSE_KEY)($|_)",
+    "(^|_)(AUTH|AUTHORIZATION)($|_)",
+    "(^|_)(CERT|CERTIFICATE|CA_BUNDLE|KUBECONFIG)($|_)",
+    "(^|_)(CONNECTION_STRING|DATABASE_URL|DB_URL|DSN)($|_)",
+    "(GOOGLE_APPLICATION_CREDENTIALS)",
+    "(GCP_SERVICE_ACCOUNT.*)",
+    "(SFDX_CLIENT_ID_.*)",
+    "(SFDX_CLIENT_KEY_.*)",
+    "(^|_)(SLACK|DISCORD|TEAMS|WEBHOOK)_URL($|_)",
+)
 
 
-def init_config(request_id, workspace=None, params={}):
+def init_config(request_id, workspace=None, params=None):
+    if params is None:
+        params = {}
     global RUN_CONFIGS
+    global _ENV_CACHE
+    _ENV_CACHE = None  # Invalidate env cache on config init
     if request_id in RUN_CONFIGS:
         existing_config = get_config(request_id)
         new_config = existing_config | params
@@ -49,9 +72,8 @@ def init_config(request_id, workspace=None, params={}):
                 + config_file_name.rsplit("/", 1)[-1]
             )
             r = requests.get(config_file_name, allow_redirects=True)
-            assert (
-                r.status_code == 200
-            ), f"Unable to retrieve config file {config_file_name}"
+            if r.status_code != 200:
+                raise RuntimeError(f"Unable to retrieve config file {config_file_name}")
             with open(config_file, "wb") as f:
                 f.write(r.content)
         # Hardcoded path to config file
@@ -169,6 +191,7 @@ def is_initialized_for(request_id):
 
 def get_config(request_id=None):
     global RUN_CONFIGS
+    global _ENV_CACHE
     if request_id is not None and request_id in RUN_CONFIGS:
         # Return request config
         return RUN_CONFIGS[request_id]
@@ -177,8 +200,10 @@ def get_config(request_id=None):
             f"Internal error: there should be a config for request_id {request_id}"
         )
     else:
-        # Return ENV
-        return os.environ.copy()
+        # Return cached ENV snapshot (refreshed on init_config calls)
+        if _ENV_CACHE is None:
+            _ENV_CACHE = os.environ.copy()
+        return _ENV_CACHE
 
 
 def set_config(request_id, runtime_config):
@@ -279,9 +304,11 @@ def copy(request_id):
 def delete(request_id=None, key=None):
     global RUN_CONFIGS
     global SKIP_DELETE_CONFIG
+    global _ENV_CACHE
     # Global delete (used for tests)
     if request_id is None:
         RUN_CONFIGS = {}
+        _ENV_CACHE = None
         return
     if key is None:
         if SKIP_DELETE_CONFIG is not True:
@@ -302,12 +329,17 @@ def build_env(request_id, secured=True, allow_list=[]):
         secured_env_variables_regex = list_secured_variables_regexes(
             secured_env_variables
         )
+    # Build a frozenset of plain variable names (non-regex) for O(1) lookup
+    secured_plain_vars = frozenset(
+        v for v in secured_env_variables if not v.startswith("(")
+    )
+    allow_set = frozenset(allow_list)
     env_dict = {}
     for key, value in get_config(request_id).items():
-        if (
-            key in secured_env_variables
+        if key not in allow_set and (
+            key in secured_plain_vars
             or match_variable_regexes(key, secured_env_variables_regex)
-        ) and key not in allow_list:
+        ):
             env_dict[key] = "HIDDEN_BY_MEGALINTER"
         elif not isinstance(value, str):
             env_dict[key] = str(value)
@@ -320,16 +352,7 @@ def list_secured_variables(request_id) -> list[str]:
     secured_env_variables_default = get_list(
         request_id,
         "SECURED_ENV_VARIABLES_DEFAULT",
-        [
-            "PAT",
-            "GIT_AUTHORIZATION_BEARER",
-            "GITLAB_CUSTOM_CERTIFICATE",
-            "(USERNAME)",
-            "(PASSWORD)",
-            "(TOKEN)",
-            "(SFDX_CLIENT_ID_.*)",
-            "(SFDX_CLIENT_KEY_.*)",
-        ],
+        list(DEFAULT_SECURED_ENV_VARIABLES),
     )
     secured_env_variables = get_list(
         request_id,

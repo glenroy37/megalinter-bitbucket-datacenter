@@ -3,6 +3,7 @@
 Gitlab Comment reporter
 Post a comment on Gitlab Merge Requests
 """
+
 import logging
 
 import gitlab
@@ -18,9 +19,13 @@ class GitlabCommentReporter(Reporter):
     gitlab_server_url = "https://gitlab.com"
 
     def manage_activation(self):
-        if not config.exists(self.master.request_id, "CI_JOB_TOKEN"):
+        if not config.exists(
+            self.master.request_id, "CI_JOB_TOKEN"
+        ) and not config.exists(
+            self.master.request_id, "GITLAB_ACCESS_TOKEN_MEGALINTER"
+        ):
             self.is_active = False
-        if (
+        elif (
             config.get(self.master.request_id, "GITLAB_COMMENT_REPORTER", "true")
             != "true"
         ):
@@ -30,9 +35,34 @@ class GitlabCommentReporter(Reporter):
         ):  # Legacy - true by default
             self.is_active = True
 
+    def get_comment_marker(self):
+        """Generate the comment marker
+
+        This marker is used to find the same comment again so it can be updated.
+        """
+        pipeline_source = config.get(self.master.request_id, "CI_PIPELINE_SOURCE")
+        job_name = config.get(self.master.request_id, "CI_JOB_NAME")
+        multirun_key = config.get(self.master.request_id, "MEGALINTER_MULTIRUN_KEY")
+
+        pipeline_source = pipeline_source and f"pipeline_source={pipeline_source!r}"
+        job_name = job_name and f"job_name={job_name!r}"
+        multirun_key = multirun_key and f"key={multirun_key!r}"
+
+        identifier = " ".join(
+            [
+                "gitlab-comment-reporter",
+                *filter(None, (pipeline_source, job_name, multirun_key)),
+            ]
+        )
+        return f"<!-- megalinter: {identifier} -->"
+
     def produce_report(self):
         # Post comment on Gitlab pull request
-        if config.get(self.master.request_id, "CI_JOB_TOKEN", "") != "":
+        if (
+            config.get(self.master.request_id, "CI_JOB_TOKEN", "") != ""
+            or config.get(self.master.request_id, "GITLAB_ACCESS_TOKEN_MEGALINTER", "")
+            != ""
+        ):
             gitlab_repo = config.get(self.master.request_id, "CI_PROJECT_NAME")
             gitlab_project_id = config.get(self.master.request_id, "CI_PROJECT_ID")
             gitlab_merge_request_id = config.get(
@@ -62,7 +92,12 @@ class GitlabCommentReporter(Reporter):
                 self.master.request_id, "CI_SERVER_URL", self.gitlab_server_url
             )
             action_run_url = config.get(self.master.request_id, "CI_JOB_URL", "")
-            p_r_msg = build_markdown_summary(self, action_run_url)
+
+            # add comment marker, with extra newlines in between.
+            marker = self.get_comment_marker()
+            p_r_msg = "\n".join(
+                [build_markdown_summary(self, action_run_url), "", marker, ""]
+            )
 
             # Build gitlab options
             gitlab_options = {}
@@ -171,7 +206,7 @@ class GitlabCommentReporter(Reporter):
                     return
                 # Check if there is already a MegaLinter comment
                 for comment in existing_comments:
-                    if "MegaLinter is graciously provided by" in comment.body:
+                    if marker in comment.body:
                         existing_comment = comment
                         break
 
@@ -203,7 +238,9 @@ class GitlabCommentReporter(Reporter):
         # Not in gitlab context
         else:
             logging.debug(
-                "[Gitlab Comment Reporter] No Gitlab Token found, so skipped post of MR comment"
+                "[Gitlab Comment Reporter] No Gitlab Token found "
+                "(CI_JOB_TOKEN or GITLAB_ACCESS_TOKEN_MEGALINTER), "
+                "so skipped post of MR comment"
             )
 
     def display_auth_error(self, e):

@@ -24,6 +24,11 @@
     "image": null,
     "title": "The GNU Bourne-Again Shell"
   },
+  "betterleaks": {
+    "description": "Scan the world (for secrets). Contribute to betterleaks/betterleaks development by creating an account on GitHub.",
+    "image": "https://opengraph.githubassets.com/b97ee8e5b194538bb2ac2f1b5303feae68c8a46a2b6f9275f5d2d8143f6cabd1/betterleaks/betterleaks",
+    "title": "GitHub - betterleaks/betterleaks: Scan the world (for secrets)"
+  },
   "bicep": {
     "description": "Learn how to use Bicep linter.",
     "image": "https://learn.microsoft.com/en-us/media/logos/logo-ms-social.png",
@@ -259,6 +264,11 @@
     "image": "./wp-content/uploads/2021/07/kics-hat-logo-full-e1625478786624.png",
     "title": "KICS - Keeping Infrastructure as Code Secure"
   },
+  "kingfisher": {
+    "description": "Kingfisher is a blazingly fast and highly accurate tool for secret detection and live validation across files, Git repos, GitHub, GitLab, Azure Repos, BitBucket, Gitea, AWS S3, Docker images, Jira,...",
+    "image": "https://opengraph.githubassets.com/9929efb5c25764f666b96c1c92dc8d492d73baae4842958b2b8b9832544562ba/mongodb/kingfisher",
+    "title": "GitHub - mongodb/kingfisher: Kingfisher is a blazingly fast and highly accurate tool for secret detection and live validation across files, Git repos, GitHub, GitLab, Azure Repos, BitBucket, Gitea, AWS S3, Docker images, Jira, Slack, and Confluence"
+  },
   "ktlint": {
     "description": "An anti-bikeshedding Kotlin linter with built-in formatter.",
     "image": null,
@@ -334,6 +344,11 @@
     "image": null,
     "title": "Welcome to mypy documentation! \u2014 Mypy 0.910 documentation"
   },
+  "nbqa": {
+    "description": "Run ruff, isort, pyupgrade, mypy, pylint, flake8, and more on Jupyter Notebooks - nbQA-dev/nbQA",
+    "image": "https://opengraph.githubassets.com/05cfe64df0b48cdeb133494d4a49d16a0d0999ab9fb3532678755711f383de44/nbQA-dev/nbQA",
+    "title": "GitHub - nbQA-dev/nbQA: Run ruff, isort, pyupgrade, mypy, pylint, flake8, and more on Jupyter Notebooks"
+  },
   "npm-groovy-lint": {
     "description": "Lint, format and auto-fix your Groovy / Jenkinsfile / Gradle files using command line - nvuillam/npm-groovy-lint",
     "image": "https://repository-images.githubusercontent.com/240214900/1dcdef80-773c-11ea-8c94-305acc58f5c6",
@@ -343,6 +358,11 @@
     "description": "A configurable linter for package.json files",
     "image": null,
     "title": "npm-package-json-lint | npm-package-json-lint"
+  },
+  "osv-scanner": {
+    "description": "Use OSV-Scanner to find existing vulnerabilities affecting your project\u2019s dependencies.",
+    "image": null,
+    "title": "OSV-Scanner"
   },
   "perlcritic": {
     "description": "Critique Perl source code for best-practices.",
@@ -483,6 +503,11 @@
     "description": "An extremely fast Python linter and code formatter, written in Rust. - astral-sh/ruff",
     "image": "https://opengraph.githubassets.com/38f6877259b2afe1e6f34f52be78027dce0e559671d0403656bae0f133893abc/astral-sh/ruff",
     "title": "GitHub - astral-sh/ruff: An extremely fast Python linter and code formatter, written in Rust."
+  },
+  "rumdl": {
+    "description": "Markdown Linter and Formatter written in Rust. Contribute to rvben/rumdl development by creating an account on GitHub.",
+    "image": "https://opengraph.githubassets.com/337f5fe8a5fd465646e5351370fcc5a92fde0cd84ab316c89a6f99ff9f4b0887/rvben/rumdl",
+    "title": "GitHub - rvben/rumdl: Markdown Linter and Formatter written in Rust"
   },
   "scalafix": {
     "description": "Refactoring and linting tool for Scala",
@@ -658,5 +683,10 @@
     "description": "A linter for YAML files. Contribute to adrienverge/yamllint development by creating an account on GitHub.",
     "image": "https://avatars3.githubusercontent.com/u/5244945?s=400&v=4",
     "title": "adrienverge/yamllint"
+  },
+  "zizmor": {
+    "description": "Find and fix potential vulnerabilities in your GitHub workflows and action definitions with zizmor's powerful static analysis.",
+    "image": "https://zizmor.sh/assets/zizmor-demo.gif",
+    "title": "zizmor - Static Analysis for GitHub Actions"
   }
 }

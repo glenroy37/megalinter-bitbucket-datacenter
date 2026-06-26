@@ -1,3 +1,4 @@
+---
 descriptor_id: MARKDOWN
 descriptor_type: format
 descriptor_flavors:
@@ -41,6 +42,16 @@ linters:
     config_file_name: .markdownlint.json
     cli_lint_fix_arg_name: "--fix"
     cli_lint_errors_count: total_lines
+    common_linter_errors:
+      - identifier: MARKDOWN_MARKDOWNLINT_ERROR_CONFIG_PARSE
+        regex: "Cannot read or parse config file"
+        message: |-
+          markdownlint could not parse its configuration file. This is typically a syntax error in `.markdownlint.json` / `.markdownlintrc`, most often a `//` or `/* */` comment in a strict-JSON file, a trailing comma, or unbalanced braces.
+          Resolutions:
+            - Validate the configuration file with a JSON linter and remove comments / trailing commas.
+            - If you need comments, rename the file to `.markdownlint.jsonc`, `.markdownlint.yaml`, or `.markdownlint.cjs` (those formats support comments).
+            - Reference docs: https://github.com/igorshubovych/markdownlint-cli#configuration
+    test_folder: markdown_markdownlint
     examples:
       - "markdownlint myfile.md"
       - "markdownlint -c .markdownlint.json myfile.md"
@@ -49,9 +60,13 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=npm depName=markdownlint-cli
-          ARG NPM_MARKDOWNLINT_CLI_VERSION=0.45.0
+          ARG NPM_MARKDOWNLINT_CLI_VERSION=0.49.0
       npm:
         - markdownlint-cli@${NPM_MARKDOWNLINT_CLI_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       sublime:
         - name: SublimeLinter-contrib-markdownlint
@@ -99,6 +114,19 @@ linters:
     cli_lint_extra_args:
       - "--frail"
     cli_lint_fix_arg_name: "-o"
+    common_linter_errors:
+      - identifier: MARKDOWN_REMARK_LINT_ERROR_PRESET_NOT_FOUND
+        regex: 'Could not find (module|preset|plugin) [`''"]'
+        message: |-
+          remark could not resolve a preset or plugin referenced in your `.remarkrc` (or equivalent config). Every plugin/preset listed in remark configuration must also be installed in `node_modules` next to remark.
+          Resolutions:
+            - Pre-install the missing preset/plugin into MegaLinter's npm root (`/node-deps`) via a pre-command in your .mega-linter.yml:
+                MARKDOWN_REMARK_LINT_PRE_COMMANDS:
+                  - command: "npm install remark-preset-lint-recommended"
+                    cwd: "root"
+                    continue_if_failed: false
+            - Verify the package name in `.remarkrc` matches the actual published name exactly.
+            - If you only use built-in / bundled presets, remove the custom entry from your config.
     test_folder: markdown_remark
     test_variables:
       MARKDOWN_DEFAULT_STYLE: remark-lint
@@ -117,6 +145,10 @@ linters:
       npm:
         - remark-cli@${NPM_REMARK_CLI_VERSION}
         - remark-preset-lint-recommended@${NPM_REMARK_PRESET_LINT_RECOMMENDED_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       sublime:
         - name: SublimeLinter-contrib-remark-lint
@@ -157,14 +189,78 @@ linters:
       - "markdown-table-formatter --check myfile.md" # Check only
       - "markdown-table-formatter myfile.md" # Apply formatting
       - "markdown-table-formatter myfile.md myfile2.md myfile3.md" # Apply formatting
+    test_folder: markdown_markdown_table_formatter
     install:
       dockerfile:
         - |-
           # renovate: datasource=npm depName=markdown-table-formatter
-          ARG NPM_MARKDOWN_TABLE_FORMATTER_VERSION=1.6.1
+          ARG NPM_MARKDOWN_TABLE_FORMATTER_VERSION=1.7.0
       npm:
         - markdown-table-formatter@${NPM_MARKDOWN_TABLE_FORMATTER_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
     ide:
       vscode:
         - name: Markdown Table Prettify Extension
           url: https://github.com/darkriszty/MarkdownTablePrettify-VSCodeExt
+  # rumdl
+  - linter_name: rumdl
+    can_output_sarif: true
+    is_formatter: true
+    activation_rules:
+      - type: variable
+        variable: MARKDOWN_DEFAULT_STYLE
+        expected_value: rumdl
+        default_value: markdownlint
+    linter_text: |
+      **rumdl** is a high-performance Markdown linter and formatter that helps ensure consistency and best practices in your Markdown files. Inspired by ruff 's approach to Python linting, rumdl brings similar speed and developer experience improvements to the Markdown ecosystem.
+
+      **Key Features:**
+
+      - Built for speed with Rust - significantly faster than alternatives
+      - 57 lint rules covering common Markdown issues
+      - Automatic formatting with --fix for files and stdin/stdout
+      - Zero dependencies - single binary with no runtime requirements
+      - Highly configurable with TOML-based config files
+      - Multiple installation options - Rust, Python, standalone binaries
+      - Installable via pip for Python users
+      - Modern CLI with detailed error reporting
+      - CI/CD friendly with non-zero exit code on errors
+    linter_url: https://github.com/rvben/rumdl
+    linter_repo: https://github.com/rvben/rumdl
+    linter_spdx_license: MIT
+    linter_rules_url: https://github.com/rvben/rumdl/blob/main/docs/RULES.md
+    linter_rules_configuration_url: https://github.com/rvben/rumdl/blob/main/docs/global-settings.md
+    linter_rules_inline_disable_url: https://github.com/rvben/rumdl/blob/main/docs/inline-configuration.md
+    config_file_name: .rumdl.toml
+    test_folder: markdown_rumdl
+    test_variables:
+      MARKDOWN_DEFAULT_STYLE: rumdl
+    cli_lint_mode: list_of_files
+    cli_lint_extra_args:
+      - "check"
+    cli_lint_fix_arg_name: "--fix"
+    cli_sarif_args:
+      - --output-format
+      - sarif
+    examples:
+      - "rumdl check myfile.md" # Check only
+      - "rumdl check --fix myfile.md" # Apply formatting
+      - "rumdl check --fix myfile.md myfile2.md myfile3.md" # Apply formatting
+    install:
+      dockerfile:
+        - |-
+          # renovate: datasource=pypi depName=rumdl
+          ARG PIP_RUMDL_VERSION=0.2.20
+      pip:
+        - rumdl==${PIP_RUMDL_VERSION}
+    supported_platforms:
+      platform:
+        - linux/amd64
+        - linux/arm64
+    ide:
+      vscode:
+        - name: rumdl - Markdown Linter
+          url: https://marketplace.visualstudio.com/items?itemName=rvben.rumdl

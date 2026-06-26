@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """
 Web Hook linter reporter
-Post linter results to a Web Hook
+Post linter lifecycle events to a Web Hook endpoint
 """
+
 import logging
 
-import requests
 from megalinter import Reporter, config
-from megalinter.utils_reporter import build_linter_reporter_external_result
+from megalinter.utils_reporter import (
+    build_linter_reporter_external_result,
+    build_linter_reporter_start_message,
+    post_webhook_message,
+)
 
 
 class WebHookLinterReporter(Reporter):
@@ -18,7 +22,7 @@ class WebHookLinterReporter(Reporter):
     web_hook_data: object | None = None
 
     def __init__(self, params=None):
-        # Deactivate GitHub Status by default
+        # Deactivate WebHook Linter Reporter by default
         self.is_active = False
         self.processing_order = 20  # Run after text reporter
         super().__init__(params)
@@ -35,39 +39,14 @@ class WebHookLinterReporter(Reporter):
                     "You need to define WEBHOOK_REPORTER_URL to use WebHookReporter"
                 )
 
-    # Snd webHook to remote server
+    # Send message when linter is about to start
+    def initialize(self):
+        start_message = build_linter_reporter_start_message(self)
+        post_webhook_message(self.hook_url, start_message, self, "linter start event")
+
+    # Send message when linter is completed
     def produce_report(self):
         self.web_hook_data = build_linter_reporter_external_result(self)
-        headers = {
-            "accept": "application/json",
-            "content-type": "application/json",
-        }
-        if config.exists(self.master.request_id, "WEBHOOK_REPORTER_BEARER_TOKEN"):
-            headers["authorization"] = (
-                f"Bearer {config.get(self.master.request_id, 'WEBHOOK_REPORTER_BEARER_TOKEN')}"
-            )
-        try:
-            response = requests.post(
-                self.hook_url, headers=headers, json=self.web_hook_data
-            )
-            if 200 <= response.status_code < 299:
-                logging.debug(
-                    f"[WebHook Reporter] Successfully posted Web Hook for {self.master.descriptor_id}"
-                    f" with {self.master.linter_name}"
-                )
-            else:
-                logging.warning(
-                    f"[WebHook Reporter] Error posting Status for {self.master.descriptor_id}"
-                    f" with {self.master.linter_name}: {response.status_code}\n"
-                    f"API response: {response.text}"
-                )
-        except ConnectionError as e:
-            logging.warning(
-                f"[WebHook Reporter] Error posting Web Hook for {self.master.descriptor_id}"
-                f" with {self.master.linter_name}: Connection error {str(e)}"
-            )
-        except Exception as e:
-            logging.warning(
-                f"[WebHook Reporter] Error posting Web Hook for {self.master.descriptor_id}"
-                f" with {self.master.linter_name}: Error {str(e)}"
-            )
+        post_webhook_message(
+            self.hook_url, self.web_hook_data, self, "linter complete event"
+        )
