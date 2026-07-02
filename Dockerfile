@@ -27,7 +27,7 @@ ARG BASH_SHFMT_VERSION=v3.13.1-alpine
 # renovate: datasource=docker depName=hadolint/hadolint
 ARG DOCKERFILE_HADOLINT_VERSION=v2.14.0-alpine
 # renovate: datasource=docker depName=mstruebing/editorconfig-checker
-ARG EDITORCONFIG_EDITORCONFIG_CHECKER_VERSION=v3.7.0
+ARG EDITORCONFIG_EDITORCONFIG_CHECKER_VERSION=v3.8.0
 # renovate: datasource=github-tags depName=mgechev/revive
 ARG GO_REVIVE_VERSION=v1.15.0
 # renovate: datasource=docker depName=golang versioning=semver
@@ -43,7 +43,7 @@ ARG REPOSITORY_DUSTILOCK_VERSION=1.2.0
 # renovate: datasource=docker depName=zricethezav/gitleaks
 ARG REPOSITORY_GITLEAKS_VERSION=v8.30.1
 # renovate: datasource=docker depName=ghcr.io/betterleaks/betterleaks
-ARG REPOSITORY_BETTERLEAKS_VERSION=v1.5.0
+ARG REPOSITORY_BETTERLEAKS_VERSION=v1.6.0
 # renovate: datasource=docker depName=trufflesecurity/trufflehog
 ARG REPOSITORY_TRUFFLEHOG_VERSION=3.95.6
 # renovate: datasource=docker depName=jdkato/vale
@@ -55,7 +55,7 @@ ARG TERRAFORM_TFLINT_VERSION=0.63.1
 # renovate: datasource=docker depName=tenable/terrascan
 ARG TERRAFORM_TERRASCAN_VERSION=1.19.9
 # renovate: datasource=docker depName=alpine/terragrunt
-ARG TERRAFORM_TERRAGRUNT_VERSION=1.15.6
+ARG TERRAFORM_TERRAGRUNT_VERSION=1.15.7
 #ARGTOP__END
 
 #############################################################################################
@@ -137,7 +137,7 @@ FROM alpine/terragrunt:${TERRAFORM_TERRAGRUNT_VERSION} AS terragrunt
 ##################
 # Build wheel for megalinter python package
 ##################
-FROM ghcr.io/astral-sh/uv:0.11.24 AS uv
+FROM ghcr.io/astral-sh/uv:0.11.25 AS uv
 FROM python:3.14-alpine3.24 AS build-ml-core
 RUN python -m pip install --no-cache-dir "wheel>=0.46.2" "setuptools>=75.8.0" \
     && rm -rf /usr/local/lib/python3.13/site-packages/setuptools/_vendor/wheel*
@@ -180,7 +180,7 @@ ARG NPM_SALESFORCE_CLI_VERSION=2.140.6
 # renovate: datasource=npm depName=@salesforce/plugin-packaging
 ARG NPM_SALESFORCE_PLUGIN_PACKAGING_VERSION=2.29.6
 # renovate: datasource=npm depName=sfdx-hardis
-ARG SFDX_HARDIS_VERSION=7.17.0
+ARG SFDX_HARDIS_VERSION=7.18.0
 # renovate: datasource=github-tags depName=coursier/coursier
 ARG SCALA_COURSIER_VERSION=2.1.24
 # renovate: datasource=npm depName=typescript
@@ -203,7 +203,7 @@ ARG CLJ_KONDO_VERSION=2025.01.16
 # renovate: datasource=github-tags depName=greglook/cljstyle
 ARG CLJ_STYLE_VERSION=0.17.642
 # renovate: datasource=pypi depName=cfn-lint
-ARG PIP_CFN_LINT_VERSION=1.51.5
+ARG PIP_CFN_LINT_VERSION=1.52.1
 # renovate: datasource=npm depName=@coffeelint/cli
 ARG NPM_COFFEELINT_CLI_VERSION=5.2.11
 # renovate: datasource=npm depName=jscpd
@@ -213,7 +213,7 @@ ARG CSHARP_CSHARPIER_VERSION=1.2.6
 # renovate: datasource=nuget depName=roslynator.dotnet.cli
 ARG CSHARP_ROSLYNATOR_VERSION=0.12.0
 # renovate: datasource=npm depName=stylelint
-ARG NPM_STYLELINT_VERSION=17.13.0
+ARG NPM_STYLELINT_VERSION=17.14.0
 # renovate: datasource=npm depName=stylelint-config-standard
 ARG NPM_STYLELINT_CONFIG_STANDARD_VERSION=40.0.0
 # renovate: datasource=npm depName=stylelint-config-sass-guidelines
@@ -235,13 +235,13 @@ ARG NPM_GRAPHQL_SCHEMA_LINTER_VERSION=3.0.1
 # renovate: datasource=npm depName=npm-groovy-lint
 ARG NPM_GROOVY_LINT_VERSION=17.0.5
 # renovate: datasource=pypi depName=djlint
-ARG PIP_DJLINT_VERSION=1.39.4
+ARG PIP_DJLINT_VERSION=1.39.7
 # renovate: datasource=npm depName=htmlhint
 ARG NPM_HTMLHINT_VERSION=1.9.2
 # renovate: datasource=github-releases depName=checkstyle/checkstyle
 ARG JAVA_CHECKSTYLE_VERSION=12.1.0
 # renovate: datasource=github-tags depName=pmd/pmd extractVersion=^pmd_releases/(?<version>.*)$
-ARG PMD_VERSION=7.25.0
+ARG PMD_VERSION=7.26.0
 
 # renovate: datasource=npm depName=eslint
 ARG NPM_ESLINT_VERSION=10.5.0
@@ -250,11 +250,11 @@ ARG NPM_ESLINT_JS_VERSION=10.0.1
 # renovate: datasource=npm depName=eslint-config-prettier
 ARG NPM_ESLINT_CONFIG_PRETTIER_VERSION=10.1.8
 # renovate: datasource=npm depName=eslint-plugin-import-x
-ARG NPM_ESLINT_PLUGIN_IMPORT_X_VERSION=4.16.2
+ARG NPM_ESLINT_PLUGIN_IMPORT_X_VERSION=4.17.0
 # renovate: datasource=npm depName=eslint-plugin-jest
-ARG NPM_ESLINT_PLUGIN_JEST_VERSION=29.15.2
+ARG NPM_ESLINT_PLUGIN_JEST_VERSION=29.15.3
 # renovate: datasource=npm depName=eslint-plugin-n
-ARG NPM_ESLINT_PLUGIN_N_VERSION=18.1.0
+ARG NPM_ESLINT_PLUGIN_N_VERSION=18.2.1
 # renovate: datasource=npm depName=eslint-plugin-prettier
 ARG NPM_ESLINT_PLUGIN_PRETTIER_VERSION=5.5.6
 # renovate: datasource=npm depName=eslint-plugin-promise
@@ -266,7 +266,7 @@ ARG NPM_MICROSOFT_ESLINT_FORMATTER_SARIF_VERSION=3.1.0
 # renovate: datasource=npm depName=standard
 ARG NPM_STANDARD_VERSION=17.1.2
 # renovate: datasource=npm depName=prettier
-ARG NPM_PRETTIER_VERSION=3.8.4
+ARG NPM_PRETTIER_VERSION=3.8.5
 # renovate: datasource=npm depName=@prantlf/jsonlint
 ARG NPM_PRANTLF_JSONLINT_VERSION=17.0.1
 # renovate: datasource=npm depName=v8r
@@ -276,7 +276,7 @@ ARG NPM_PACKAGE_JSON_LINT_VERSION=10.4.1
 # renovate: datasource=npm depName=npm-package-json-lint-config-default
 ARG NPM_PACKAGE_JSON_LINT_CONFIG_DEFAULT_VERSION=9.0.1
 # renovate: datasource=npm depName=@eslint-react/eslint-plugin
-ARG NPM_ESLINT_REACT_ESLINT_PLUGIN_VERSION=5.9.1
+ARG NPM_ESLINT_REACT_ESLINT_PLUGIN_VERSION=5.9.5
 # renovate: datasource=github-tags depName=pinterest/ktlint
 ARG KTLINT_VERSION=1.8.0
 
@@ -293,9 +293,9 @@ ARG NPM_MARKDOWNLINT_CLI_VERSION=0.49.0
 # renovate: datasource=npm depName=markdown-table-formatter
 ARG NPM_MARKDOWN_TABLE_FORMATTER_VERSION=1.7.0
 # renovate: datasource=pypi depName=rumdl
-ARG PIP_RUMDL_VERSION=0.2.20
+ARG PIP_RUMDL_VERSION=0.2.27
 # renovate: datasource=github-tags depName=skaji/cpm
-ARG PERL_PERLCRITIC_VERSION=v1.1.2
+ARG PERL_PERLCRITIC_VERSION=v1.1.4
 
 # renovate: datasource=packagist depName=squizlabs/php_codesniffer
 ARG PHP_SQUIZLABS_PHP_CODESNIFFER_VERSION=4.0.1
@@ -310,7 +310,7 @@ ARG PHP_VIMEO_PSALM_VERSION=6.16.1
 # renovate: datasource=packagist depName=overtrue/phplint
 ARG PHP_OVERTRUE_PHPLINT_VERSION=9.7.2
 # renovate: datasource=packagist depName=friendsofphp/php-cs-fixer
-ARG PHP_FRIENDSOFPHP_PHP_CS_FIXER_VERSION=v3.95.10
+ARG PHP_FRIENDSOFPHP_PHP_CS_FIXER_VERSION=v3.95.11
 # renovate: datasource=nuget depName=PSScriptAnalyzer registryUrl=https://www.powershellgallery.com/api/v2/
 ARG PSSA_VERSION='1.25.0'
 
@@ -333,19 +333,19 @@ ARG PIP_MYPY_VERSION=1.19.1
 # renovate: datasource=pypi depName=nbqa
 ARG PIP_NBQA_VERSION=1.9.1
 # renovate: datasource=npm depName=pyright
-ARG NPM_PYRIGHT_VERSION=1.1.410
+ARG NPM_PYRIGHT_VERSION=1.1.411
 # renovate: datasource=pypi depName=ruff
-ARG PIP_RUFF_VERSION=0.15.18
+ARG PIP_RUFF_VERSION=0.15.20
 # renovate: datasource=github-tags depName=nxadm/rakudo-pkg
 ARG RAKU_RAKU_VERSION=2026.03
 ARG RAKU_RAKU_ALPINE_VERSION=3.23
 
 # renovate: datasource=pypi depName=checkov
-ARG PIP_CHECKOV_VERSION=3.3.2
+ARG PIP_CHECKOV_VERSION=3.3.6
 # renovate: datasource=nuget depName=Microsoft.CST.DevSkim.CLI
 ARG REPOSITORY_DEVSKIM_VERSION=1.0.70
 # renovate: datasource=github-tags depName=anchore/grype
-ARG REPOSITORY_GRYPE_VERSION=0.114.0
+ARG REPOSITORY_GRYPE_VERSION=0.115.0
 # renovate: datasource=github-releases depName=loeffel-io/ls-lint extractVersion=^v(?<version>.+)$
 ARG REPOSITORY_LS_LINT_VERSION=2.3.1
 # renovate: datasource=repology depName=alpine_3_24/osv-scanner versioning=loose
@@ -359,13 +359,13 @@ ARG NPM_SECRETLINT_SECRETLINT_FORMATTER_SARIF_VERSION=11.7.1
 # renovate: datasource=pypi depName=semgrep
 ARG PIP_SEMGREP_VERSION=1.168.0
 # renovate: datasource=github-tags depName=anchore/syft
-ARG REPOSITORY_SYFT_VERSION=1.45.1
+ARG REPOSITORY_SYFT_VERSION=1.46.0
 # renovate: datasource=github-tags depName=aquasecurity/trivy
 ARG REPOSITORY_TRIVY_VERSION=0.71.2
 # renovate: datasource=github-tags depName=aquasecurity/trivy
 ARG REPOSITORY_TRIVY_SBOM_VERSION=0.71.2
 # renovate: datasource=github-tags depName=mongodb/kingfisher
-ARG REPOSITORY_KINGFISHER_VERSION=1.104.0
+ARG REPOSITORY_KINGFISHER_VERSION=1.105.0
 # renovate: datasource=pypi depName=robotframework-robocop
 ARG PIP_ROBOT_FRAMEWORK_ROBOCOP_VERSION=8.3.2
 # renovate: datasource=pypi depName=Pygments
@@ -397,7 +397,7 @@ ARG SCALA_SCALAFIX_VERSION=0.14.7
 # renovate: datasource=pypi depName=snakemake
 ARG PIP_SNAKEMAKE_VERSION=9.23.1
 # renovate: datasource=pypi depName=snakefmt
-ARG PIP_SNAKEFMT_VERSION=2.0.2
+ARG PIP_SNAKEFMT_VERSION=2.0.3
 # renovate: datasource=npm depName=cspell
 ARG NPM_CSPELL_VERSION=10.0.1
 # renovate: datasource=pypi depName=proselint
@@ -408,14 +408,16 @@ ARG PIP_CODESPELL_VERSION=2.4.2
 ARG PIP_SQLFLUFF_VERSION=4.2.2
 # renovate: datasource=nuget depName=TSQLLint
 ARG SQL_TSQLLINT_VERSION=1.16.0
+# renovate: datasource=github-releases depName=realm/SwiftLint
+ARG SWIFT_SWIFTLINT_VERSION=0.65.0
 # renovate: datasource=npm depName=@ibm/tekton-lint
 ARG NPM_IBM_TEKTON_LINT_VERSION=1.2.0
 # renovate: datasource=npm depName=prettyjson
 ARG NPM_PRETTYJSON_VERSION=1.2.5
 # renovate: datasource=npm depName=@typescript-eslint/eslint-plugin
-ARG NPM_TYPESCRIPT_ESLINT_ESLINT_PLUGIN_VERSION=8.61.1
+ARG NPM_TYPESCRIPT_ESLINT_ESLINT_PLUGIN_VERSION=8.62.0
 # renovate: datasource=npm depName=@typescript-eslint/parser
-ARG NPM_TYPESCRIPT_ESLINT_PARSER_VERSION=8.61.1
+ARG NPM_TYPESCRIPT_ESLINT_PARSER_VERSION=8.62.0
 # renovate: datasource=npm depName=ts-standard
 ARG NPM_TS_STANDARD_VERSION=12.0.2
 # renovate: datasource=pypi depName=yamllint
@@ -476,8 +478,7 @@ RUN apk -U --no-cache upgrade \
                 make \
                 musl-dev \
                 openssh \
-                docker \
-                openrc \
+                su-exec \
                 icu-libs \
                 openjdk21 \
                 lua5.3 \
@@ -516,6 +517,7 @@ RUN apk -U --no-cache upgrade \
                 R \
                 R-dev \
                 R-doc \
+                unzip \
                 npm \
                 nodejs-current \
                 yarn \
@@ -803,9 +805,8 @@ ENV PATH="/node-deps/node_modules/.bin:${PATH}" \
 ## @generated by .automation/build.py using descriptor files, please do not update manually ##
 #############################################################################################
 #OTHER__START
-RUN rc-update add docker boot && (rc-service docker start || true) \
 # ARM installation
-    && case ${TARGETPLATFORM} in \
+RUN case ${TARGETPLATFORM} in \
   "linux/amd64")  POWERSHELL_ARCH=musl-x64 ;; \
   "linux/arm64")  POWERSHELL_ARCH=arm64    ;; \
 esac \
@@ -963,12 +964,22 @@ esac \
   "linux/amd64")  DART_ARCH=x64   ;; \
   "linux/arm64")  DART_ARCH=arm64 ;; \
 esac \
-    && wget --tries=5 https://storage.googleapis.com/dart-archive/channels/stable/release/${DART_VERSION}/sdk/dartsdk-linux-${DART_ARCH}-release.zip -O - -q | unzip -q - \
+    && DART_URL="https://storage.googleapis.com/dart-archive/channels/stable/release/${DART_VERSION}/sdk/dartsdk-linux-${DART_ARCH}-release.zip" \
+    && for attempt in 1 2 3 4 5; do \
+         echo "Downloading Dart SDK (attempt ${attempt}/5)" \
+         && wget --tries=5 -T 60 -q -O /tmp/dart-sdk.zip "${DART_URL}" \
+         && unzip -tq /tmp/dart-sdk.zip > /dev/null 2>&1 \
+         && break; \
+         echo "Dart SDK download/verify failed (attempt ${attempt}/5), retrying in 15s" \
+         && rm -f /tmp/dart-sdk.zip \
+         && sleep 15; \
+       done \
+    && unzip -q /tmp/dart-sdk.zip -d /tmp \
     && mkdir -p /usr/lib/dart \
-    && mv dart-sdk/* /usr/lib/dart/ \
+    && mv /tmp/dart-sdk/* /usr/lib/dart/ \
     && chmod +x /usr/lib/dart/bin/dart \
     && chmod +x /usr/lib/dart/bin/dartaotruntime \
-    && rm -r dart-sdk/
+    && rm -rf /tmp/dart-sdk /tmp/dart-sdk.zip
 
 ENV PATH="/usr/lib/dart/bin:${PATH}"
 # hadolint installation
@@ -1187,10 +1198,18 @@ RUN dotnet tool install --allow-roll-forward --tool-path /usr/local/dotnet-tools
 # RUN apk add --no-cache dotnet10-sdk && install -d /usr/local/dotnet-tools
 # Next line commented because already managed by another linter
 # ENV PATH="${PATH}:/usr/local/dotnet-tools"
-    && dotnet tool install --allow-roll-forward --tool-path /usr/local/dotnet-tools TSQLLint --version ${SQL_TSQLLINT_VERSION}
+    && dotnet tool install --allow-roll-forward --tool-path /usr/local/dotnet-tools TSQLLint --version ${SQL_TSQLLINT_VERSION} \
 # swiftlint installation
-# renovate: datasource=docker depName=ghcr.io/realm/swiftlint
-ENV SWIFT_SWIFTLINT_VERSION=0.64.1
+    && case "${TARGETARCH}" in \
+      amd64) SWIFTLINT_ARCH=amd64 ;; \
+      arm64) SWIFTLINT_ARCH=arm64 ;; \
+      *) echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
+    esac && \
+    curl -fsSL -o /tmp/swiftlint.zip \
+      "https://github.com/realm/SwiftLint/releases/download/${SWIFT_SWIFTLINT_VERSION}/swiftlint_linux_${SWIFTLINT_ARCH}.zip" && \
+    unzip -o /tmp/swiftlint.zip -d /tmp/swiftlint && \
+    install -m 0755 /tmp/swiftlint/swiftlint-static /usr/bin/swiftlint && \
+    rm -rf /tmp/swiftlint /tmp/swiftlint.zip
 # tekton-lint installation
 # tflint installation
 # Managed with COPY --link --from=tflint /usr/local/bin/tflint /usr/bin/
@@ -1265,8 +1284,8 @@ LABEL com.github.actions.name="MegaLinter" \
 
 #EXTRA_DOCKERFILE_LINES__START
 COPY entrypoint.sh /entrypoint.sh
-COPY sh/setup-runtime-user /usr/bin/setup-runtime-user
+COPY sh/setup-runtime-user.sh /usr/bin/setup-runtime-user.sh
 RUN chmod +x entrypoint.sh && \
-    chmod u+x /usr/bin/setup-runtime-user
+    chmod u+x /usr/bin/setup-runtime-user.sh
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 #EXTRA_DOCKERFILE_LINES__END

@@ -11,6 +11,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from shutil import copyfile, which
@@ -32,8 +33,6 @@ from megalinter import config, utils
 from megalinter.constants import (
     DEFAULT_DOCKERFILE_APK_PACKAGES,
     DEFAULT_DOCKERFILE_ARGS,
-    DEFAULT_DOCKERFILE_DOCKER_APK_PACKAGES,
-    DEFAULT_DOCKERFILE_DOCKER_ARGS,
     DEFAULT_DOCKERFILE_FLAVOR_ARGS,
     DEFAULT_DOCKERFILE_FLAVOR_CARGO_PACKAGES,
     DEFAULT_DOCKERFILE_FLAVOR_COPY_LINES,
@@ -211,13 +210,10 @@ def generate_flavor(flavor, flavor_info):
                 flavor_descriptors += [descriptor["descriptor_id"]]
     # Get install instructions at linter level
     linters = megalinter.linter_factory.list_all_linters(({"request_id": "build"}))
-    requires_docker = False
     for linter in linters:
         if match_flavor(vars(linter), flavor, flavor_info) is True:
             descriptor_and_linters += [vars(linter)]
             flavor_linters += [linter.name]
-            if linter.cli_docker_image is not None:
-                requires_docker = True
     # Initialize Dockerfile
     if flavor == "all":
         dockerfile = f"{REPO_HOME}/Dockerfile"
@@ -234,9 +230,6 @@ outputs:
 runs:
   using: "docker"
   image: "docker://{ML_DOCKER_IMAGE_WITH_HOST}:{image_release}"
-  args:
-    - "-v"
-    - "/var/run/docker.sock:/var/run/docker.sock:rw"
 branding:
   icon: "check"
   color: "green"
@@ -298,9 +291,6 @@ outputs:
 runs:
   using: "docker"
   image: "docker://{ML_DOCKER_IMAGE_WITH_HOST}-{flavor}:{image_release}"
-  args:
-    - "-v"
-    - "/var/run/docker.sock:/var/run/docker.sock:rw"
 branding:
   icon: "check"
   color: "green"
@@ -330,15 +320,14 @@ branding:
         ]
     extra_lines += [
         "COPY entrypoint.sh /entrypoint.sh",
-        "COPY sh/setup-runtime-user /usr/bin/setup-runtime-user",
+        "COPY sh/setup-runtime-user.sh /usr/bin/setup-runtime-user.sh",
         "RUN chmod +x entrypoint.sh && \\",
-        "    chmod u+x /usr/bin/setup-runtime-user",
+        "    chmod u+x /usr/bin/setup-runtime-user.sh",
         'ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]',
     ]
     build_dockerfile(
         dockerfile,
         descriptor_and_linters,
-        requires_docker,
         flavor,
         extra_lines,
         DEFAULT_DOCKERFILE_FLAVOR_ARGS.copy(),
@@ -354,7 +343,6 @@ branding:
 def build_dockerfile(
     dockerfile,
     descriptor_and_linters,
-    requires_docker,
     flavor,
     extra_lines,
     extra_args=None,
@@ -377,14 +365,6 @@ def build_dockerfile(
     gem_packages = []
     cargo_packages = [] if "cargo" not in extra_packages else extra_packages["cargo"]
     is_docker_other_run = False
-    # Manage docker
-    if requires_docker is True:
-        docker_arg += DEFAULT_DOCKERFILE_DOCKER_ARGS.copy()
-        apk_packages += DEFAULT_DOCKERFILE_DOCKER_APK_PACKAGES.copy()
-        docker_other += [
-            "RUN rc-update add docker boot && (rc-service docker start || true)"
-        ]
-        is_docker_other_run = True
     for item in descriptor_and_linters:
         if "install" not in item:
             item["install"] = {}
@@ -820,9 +800,6 @@ def generate_linter_dockerfiles():
             dockerfile = f"{LINTERS_DIR}/{linter_lower_name}/Dockerfile"
             if not os.path.isdir(os.path.dirname(dockerfile)):
                 os.makedirs(os.path.dirname(dockerfile), exist_ok=True)
-            requires_docker = False
-            if linter.cli_docker_image is not None:
-                requires_docker = True
             descriptor_and_linter = descriptor_items + [vars(linter)]
             copyfile(f"{REPO_HOME}/Dockerfile", dockerfile)
             extra_lines = [
@@ -846,23 +823,25 @@ def generate_linter_dockerfiles():
                 "EXPOSE 22",
                 "COPY entrypoint.sh /entrypoint.sh",
                 "COPY sh /usr/bin/megalinter-sh",
-                "COPY sh/megalinter_exec /usr/bin/megalinter_exec",
-                "COPY sh/setup-runtime-user /usr/bin/setup-runtime-user",
+                "COPY sh/megalinter_exec.sh /usr/bin/megalinter_exec.sh",
+                "COPY sh/setup-runtime-user.sh /usr/bin/setup-runtime-user.sh",
                 "COPY sh/motd /etc/motd",
                 'RUN find /usr/bin/megalinter-sh/ -type f -iname "*.sh" -exec chmod +x {} \\; && \\',
                 "    chmod +x entrypoint.sh && \\",
-                "    chmod +x /usr/bin/megalinter_exec && \\",
-                "    chmod u+x /usr/bin/setup-runtime-user && \\",
-                "    echo \"alias megalinter='python -m megalinter.run'\" >> ~/.bashrc && source ~/.bashrc && \\",
-                "    echo \"alias megalinter_exec='/usr/bin/megalinter_exec'\" >> ~/.bashrc && source ~/.bashrc",
+                "    chmod +x /usr/bin/megalinter_exec.sh && \\",
+                "    chmod u+x /usr/bin/setup-runtime-user.sh && \\",
+                "    printf '%s\\\\n' \\",
+                "      '#!/usr/bin/env sh' \\",
+                "      'exec python -m megalinter.run \"$@\"' \\",
+                "      > /usr/local/bin/megalinter && \\",
+                "    chmod u+x /usr/local/bin/megalinter && \\",
+                "    ln -sf /usr/bin/megalinter_exec.sh /usr/local/bin/megalinter_exec",
                 'RUN export STANDALONE_LINTER_VERSION="$(python -m megalinter.run --input /tmp --linterversion)" && \\',
                 "    echo $STANDALONE_LINTER_VERSION",
                 # "    echo $STANDALONE_LINTER_VERSION >> ~/.bashrc && source ~/.bashrc",
                 'ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]',
             ]
-            build_dockerfile(
-                dockerfile, descriptor_and_linter, requires_docker, "none", extra_lines
-            )
+            build_dockerfile(dockerfile, descriptor_and_linter, "none", extra_lines)
             docker_image = (
                 f"{ML_DOCKER_IMAGE_WITH_HOST}-only-{linter_lower_name}:{VERSION_V}"
             )
@@ -1497,14 +1476,6 @@ def process_type(linters_by_type, type1, type_label, linters_tables_md):
         linter_doc_md += [
             f"- Visit [Official Web Site]({doc_url(linter.linter_url)}){{target=_blank}}",
         ]
-        # Docker image doc
-        if linter.cli_docker_image is not None:
-            linter_doc_md += [
-                f"- Docker image: [{linter.cli_docker_image}:{linter.cli_docker_image_version}]"
-                f"(https://hub.docker.com/r/{linter.cli_docker_image})"
-                "{target=_blank}",
-                f"  - arguments: `{' '.join(linter.cli_docker_args)}`",
-            ]
         # Rules configuration URL
         if (
             hasattr(linter, "linter_rules_configuration_url")
@@ -1605,10 +1576,6 @@ def process_type(linters_by_type, type1, type_label, linters_tables_md):
                 linter_doc_md += [
                     f"| {variable['name']} | {variable['description']} | `{variable['default_value']}` |"
                 ]
-        if linter.cli_docker_image is not None:
-            linter_doc_md += [
-                f"| {linter.name}_DOCKER_IMAGE_VERSION | Docker image version | `{linter.cli_docker_image_version}` |"
-            ]
         linter_doc_md += [
             f"| {linter.name}_ARGUMENTS | User custom arguments to add in linter CLI call<br/>"
             f'Ex: `-s --foo "bar"` |  |'
@@ -2564,7 +2531,11 @@ def replace_in_file(file_path, start, end, content, add_new_line=True):
         # Get text between markdown-headers tag
         header_content = header_matches[0]
         content = re.sub(
-            r"<!-- markdown-headers\n.*?\n-->", "", content, 1, re.MULTILINE | re.DOTALL
+            r"<!-- markdown-headers\n.*?\n-->",
+            "",
+            content,
+            count=1,
+            flags=re.MULTILINE | re.DOTALL,
         )[1:]
     # Replace the target string
     if add_new_line is True:
@@ -2572,7 +2543,7 @@ def replace_in_file(file_path, start, end, content, add_new_line=True):
     else:
         replacement = f"{start}{content}{end}"
     regex = rf"{start}([\s\S]*?){end}"
-    file_content = re.sub(regex, replacement, file_content, 1, re.DOTALL)
+    file_content = re.sub(regex, replacement, file_content, count=1, flags=re.DOTALL)
     # Add / replace header if necessary
     if header_content is not None:
         existing_header_matches = re.findall(
@@ -2587,8 +2558,8 @@ def replace_in_file(file_path, start, end, content, add_new_line=True):
                 r"---\n.*?\n---",
                 header_content,
                 file_content,
-                1,
-                re.MULTILINE | re.DOTALL,
+                count=1,
+                flags=re.MULTILINE | re.DOTALL,
             )
         else:
             file_content = header_content + "\n" + file_content
@@ -2767,7 +2738,6 @@ def _infer_config_schema_section(property_name: str) -> str:
         or property_name.endswith("_COMMAND_REMOVE_ARGUMENTS")
         or property_name.endswith("_CLI_LINT_MODE")
         or property_name.endswith("_CLI_EXECUTABLE")
-        or property_name.endswith("_DOCKER_IMAGE_VERSION")
         or property_name.endswith("_CONFIG_FILE")
         or property_name.endswith("_RULES_PATH")
     ):
@@ -2829,14 +2799,33 @@ def _infer_config_schema_x_order(property_name: str, section: str) -> int:
             return section_rank * 1000 + 50
         if property_name.endswith("_CLI_EXECUTABLE"):
             return section_rank * 1000 + 60
-        if property_name.endswith("_DOCKER_IMAGE_VERSION"):
-            return section_rank * 1000 + 70
 
     if section == "SECURITY":
         if property_name.endswith("_UNSECURED_ENV_VARIABLES"):
             return section_rank * 1000 + 0
 
     return section_rank * 1000 + 999
+
+
+def write_config_json_schema(json_schema) -> None:
+    # Atomic write with retry: the config schema is rewritten many times during a
+    # build, and on Windows a transient lock from an editor's JSON language server
+    # or antivirus can make a direct write fail with OSError [Errno 22]. Writing to
+    # a sibling temp file then os.replace() keeps the target intact, and the retry
+    # tolerates a brief lock on the final replace.
+    tmp_path = CONFIG_JSON_SCHEMA + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as outfile:
+        json.dump(json_schema, outfile, indent=2, sort_keys=True)
+        outfile.write("\n")
+    last_error: OSError = OSError("Failed to replace config schema after all retries")
+    for attempt in range(10):
+        try:
+            os.replace(tmp_path, CONFIG_JSON_SCHEMA)
+            return
+        except OSError as error:
+            last_error = error
+            time.sleep(0.5)
+    raise last_error
 
 
 def ensure_config_schema_root_x_metadata_for_descriptors_and_linters() -> None:
@@ -2855,6 +2844,22 @@ def ensure_config_schema_root_x_metadata_for_descriptors_and_linters() -> None:
 
         if _is_removed_linter_related_variable(prop_name):
             continue
+
+        # Flag deprecated variables with the JSON Schema "deprecated" keyword so
+        # editors/tools can surface them. Detection is based on the "(deprecated)"
+        # title prefix added for deprecated linters and on "Deprecated:" wording.
+        title = prop_schema.get("title", "")
+        description = prop_schema.get("description", "")
+        is_deprecated_variable = (
+            isinstance(title, str) and "(deprecated)" in title.lower()
+        ) or (
+            isinstance(description, str)
+            and description.lower().lstrip().startswith("deprecated")
+        )
+        if is_deprecated_variable and prop_schema.get("deprecated") is not True:
+            prop_schema["deprecated"] = True
+            updated = True
+
         category = _infer_config_schema_descriptor_or_linter_category(prop_name)
         if category is None:
             continue
@@ -2873,9 +2878,7 @@ def ensure_config_schema_root_x_metadata_for_descriptors_and_linters() -> None:
             updated = True
 
     if updated is True:
-        with open(CONFIG_JSON_SCHEMA, "w", encoding="utf-8") as outfile:
-            json.dump(json_schema, outfile, indent=2, sort_keys=True)
-            outfile.write("\n")
+        write_config_json_schema(json_schema)
 
 
 def validate_config_schema_root_x_metadata() -> None:
@@ -2924,9 +2927,7 @@ def add_in_config_schema_file(variables):
     json_schema["properties"] = json_schema_props
     updated = _ensure_enum_names(json_schema) or updated
     if updated is True:
-        with open(CONFIG_JSON_SCHEMA, "w", encoding="utf-8") as outfile:
-            json.dump(json_schema, outfile, indent=2, sort_keys=True)
-            outfile.write("\n")
+        write_config_json_schema(json_schema)
 
 
 def remove_in_config_schema_file(variables):
@@ -2941,9 +2942,7 @@ def remove_in_config_schema_file(variables):
             updated = True
     json_schema["properties"] = json_schema_props
     if updated is True:
-        with open(CONFIG_JSON_SCHEMA, "w", encoding="utf-8") as outfile:
-            json.dump(json_schema, outfile, indent=2, sort_keys=True)
-            outfile.write("\n")
+        write_config_json_schema(json_schema)
 
 
 def copy_md_file(source_file, target_file):
@@ -2975,7 +2974,9 @@ def move_to_file(file_path, start, end, target_file, keep_in_source=False):
     else:
         bracket_content = ""
     if keep_in_source is False:
-        file_content = re.sub(regex, replacement, file_content, 1, re.DOTALL)
+        file_content = re.sub(
+            regex, replacement, file_content, count=1, flags=re.DOTALL
+        )
     # Write the file out again
     Path(file_path).write_text(file_content, encoding="utf-8")
     logging.info("Updated " + file_path + " between " + start + " and " + end)
@@ -3158,7 +3159,7 @@ def finalize_doc_build():
         "<!-- mega-linter-badges-start -->",
         "<!-- mega-linter-badges-end -->",
         """![GitHub release](https://img.shields.io/github/v/release/oxsecurity/megalinter?sort=semver&color=%23FD80CD)
-[![Docker Pulls](https://img.shields.io/badge/docker%20pulls-5.5M-blue?color=%23FD80CD)](https://megalinter.io/flavors/)
+[![Docker Pulls](https://img.shields.io/badge/docker%20pulls-15.9M-blue?color=%23FD80CD)](https://megalinter.io/flavors/)
 [![Downloads/week](https://img.shields.io/npm/dw/mega-linter-runner.svg?color=%23FD80CD)](https://npmjs.org/package/mega-linter-runner)
 [![GitHub stars](https://img.shields.io/github/stars/oxsecurity/megalinter?cacheSeconds=3600&color=%23FD80CD)](https://github.com/oxsecurity/megalinter/stargazers/)
 [![Dependents](https://img.shields.io/static/v1?label=Used%20by&message=2180&color=%23FD80CD&logo=slickpic)](https://github.com/oxsecurity/megalinter/network/dependents)
@@ -3303,9 +3304,7 @@ def generate_json_schema_enums():
     json_schema["definitions"]["enum_linter_keys"]["enum"] = sorted(
         set(json_schema["definitions"]["enum_linter_keys"]["enum"])
     )
-    with open(CONFIG_JSON_SCHEMA, "w", encoding="utf-8") as outfile:
-        json.dump(json_schema, outfile, indent=2, sort_keys=True)
-        outfile.write("\n")
+    write_config_json_schema(json_schema)
     # Also update megalinter custom flavor schema
     with open(CUSTOM_FLAVOR_JSON_SCHEMA, "r", encoding="utf-8") as json_flavor_file:
         json_flavor_schema = json.load(json_flavor_file)

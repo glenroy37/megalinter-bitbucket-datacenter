@@ -49,13 +49,8 @@ DEFAULT_DOCKERFILE_APK_PACKAGES = [
     "make",
     "musl-dev",
     "openssh",
-]
-
-DEFAULT_DOCKERFILE_DOCKER_ARGS: list[str] = []
-
-DEFAULT_DOCKERFILE_DOCKER_APK_PACKAGES = [
-    "docker",
-    "openrc",
+    # su-exec for user switch in entrypoint
+    "su-exec",
 ]
 
 DEFAULT_DOCKERFILE_NPM_ARGS: list[str] = []
