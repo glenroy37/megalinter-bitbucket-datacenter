@@ -22,7 +22,7 @@ description: How to use npm-package-json-lint (configure, ignore files, ignore e
 
 ## npm-package-json-lint documentation
 
-- Version in MegaLinter: **11.0.0**
+- Version in MegaLinter: **11.0.1**
 - Visit [Official Web Site](https://npmpackagejsonlint.org/){target=_blank}
 - See [How to configure npm-package-json-lint rules](https://npmpackagejsonlint.org/docs/configuration){target=_blank}
   - If custom `.npmpackagejsonlintrc.json` config file isn't found, [.npmpackagejsonlintrc.json](https://github.com/oxsecurity/megalinter/tree/main/TEMPLATES/.npmpackagejsonlintrc.json){target=_blank} will be used
@@ -30,7 +30,7 @@ description: How to use npm-package-json-lint (configure, ignore files, ignore e
   - You can define a `.npmpackagejsonlintignore` file to ignore files and folders
 - See [Index of problems detected by npm-package-json-lint](https://npmpackagejsonlint.org/docs/rules){target=_blank}
 
-[![npm-package-json-lint - GitHub](https://gh-card.dev/repos/tclindner/npm-package-json-lint.svg?fullname=)](https://github.com/tclindner/npm-package-json-lint){target=_blank}
+[![npm-package-json-lint - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=tclindner&repo=npm-package-json-lint&show_owner=true)](https://github.com/tclindner/npm-package-json-lint){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -135,11 +135,11 @@ npmPkgJsonLint --configFile .npmpackagejsonlintrc.json .
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=npm depName=npm-package-json-lint
-ARG NPM_PACKAGE_JSON_LINT_VERSION=11.0.0
+ARG NPM_PACKAGE_JSON_LINT_VERSION=11.0.1
 # renovate: datasource=npm depName=npm-package-json-lint-config-default
 ARG NPM_PACKAGE_JSON_LINT_CONFIG_DEFAULT_VERSION=10.0.0
 ```
 
 - NPM packages (node.js):
-  - [npm-package-json-lint@11.0.0](https://www.npmjs.com/package/npm-package-json-lint/v/11.0.0)
+  - [npm-package-json-lint@11.0.1](https://www.npmjs.com/package/npm-package-json-lint/v/11.0.1)
   - [npm-package-json-lint-config-default@10.0.0](https://www.npmjs.com/package/npm-package-json-lint-config-default/v/10.0.0)

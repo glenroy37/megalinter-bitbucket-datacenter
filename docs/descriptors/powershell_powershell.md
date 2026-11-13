@@ -22,13 +22,13 @@ description: How to use powershell (configure, ignore files, ignore errors, help
 
 ## powershell documentation
 
-- Version in MegaLinter: **7.6.7**
+- Version in MegaLinter: **7.6.9**
 - Visit [Official Web Site](https://github.com/PowerShell/PSScriptAnalyzer#readme){target=_blank}
 - See [How to configure powershell rules](https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/using-scriptanalyzer?view=ps-modules#explicit){target=_blank}
 - See [How to disable powershell rules in files](https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/using-scriptanalyzer?view=ps-modules#suppressing-rules){target=_blank}
 - See [Index of problems detected by powershell](https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/rules/readme?view=ps-modules){target=_blank}
 
-[![PSScriptAnalyzer - GitHub](https://gh-card.dev/repos/PowerShell/PSScriptAnalyzer.svg?fullname=)](https://github.com/PowerShell/PSScriptAnalyzer){target=_blank}
+[![PSScriptAnalyzer - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=PowerShell&repo=PSScriptAnalyzer&show_owner=true)](https://github.com/PowerShell/PSScriptAnalyzer){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -449,7 +449,7 @@ All parameters are case-insensitive.
 # Parent descriptor install
 ARG TARGETPLATFORM
 # renovate: datasource=github-tags depName=PowerShell/PowerShell
-ARG POWERSHELL_VERSION=7.6.7
+ARG POWERSHELL_VERSION=7.6.9
 
 RUN case ${TARGETPLATFORM} in \
   "linux/amd64")  POWERSHELL_ARCH=musl-x64 ;; \
@@ -465,6 +465,6 @@ esac \
 # renovate: datasource=nuget depName=PSScriptAnalyzer registryUrl=https://www.powershellgallery.com/api/v2/
 ARG PSSA_VERSION='1.25.0'
 
-RUN pwsh -c 'Install-Module -Name PSScriptAnalyzer -RequiredVersion ${PSSA_VERSION} -Scope AllUsers -Force'
+RUN pwsh -c 'Install-Module -Name PSScriptAnalyzer -RequiredVersion ${PSSA_VERSION} -Scope AllUsers -Force -ErrorAction Stop'
 ```
 

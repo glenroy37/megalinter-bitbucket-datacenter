@@ -213,6 +213,7 @@ class Linter:
         self.report_folder = ""
         self.reporters = []
         self.lint_command_log: list[str] = []
+        self.lint_command_env: dict[str, str] | None = None
         self.lint_cwd_log = ""
 
         # Initialize parameters
@@ -1036,7 +1037,7 @@ class Linter:
                 file_warnings_number = 0
                 file_warnings_number = self.get_total_number_warnings(stdout)
                 self.total_number_warnings += file_warnings_number
-                if return_code > 0:
+                if return_code != 0:
                     file_status = "error"
                     self.status = "warning" if self.disable_errors is True else "error"
                     self.return_code = (
@@ -1282,6 +1283,21 @@ class Linter:
             + utils.format_bullet_list(self.files)
         )
 
+    # Drop files whose name can not be carried safely to an interpreter
+    # through an environment variable (line breaks, NUL...)
+    def drop_files_unsafe_for_interpreter(self):
+        safe_files = []
+        for file in self.files:
+            if re.search(r"[\x00-\x1f\x7f]", file):
+                logging.warning(
+                    f"[{self.linter_name}] Skipped {file!r}: its name contains "
+                    "control characters that can not be passed safely to the linter"
+                )
+            else:
+                safe_files.append(file)
+        self.files = safe_files
+        self.files_number = len(self.files)
+
     # lint a single file or whole project
     def process_linter(self, file=None):
         # Remove previous run SARIF file if necessary
@@ -1313,6 +1329,9 @@ class Linter:
                 **config.build_env(self.request_id, True, self.unsecured_env_variables),
                 "FORCE_COLOR": "0",
             }
+        if self.lint_command_env:
+            subprocess_env = {**subprocess_env, **self.lint_command_env}
+            logging.debug(f"[{self.linter_name}] Command env: {self.lint_command_env}")
         if isinstance(command, str):
             self.lint_command_log.append(command)
             # Call linter with a sub-process
@@ -1516,9 +1535,12 @@ class Linter:
         # Convert SARIF into human readable text for Console & Text reporters
         if sarif_confirmed is True and self.master.sarif_to_human is True:
             with open(self.sarif_output_file, "r", encoding="utf-8") as file:
-                self.stdout_human = utils_reporter.convert_sarif_to_human(
-                    file.read(), self.request_id
+                sarif_text = utils_sarif.remove_suppressed_results_from_text(
+                    file.read()
                 )
+            self.stdout_human = utils_reporter.convert_sarif_to_human(
+                sarif_text, self.request_id
+            )
 
     # Returns linter version (can be overridden in special cases, like version has special format)
     def get_linter_version(self):
@@ -2394,7 +2416,9 @@ class Linter:
             if sarif and sarif["runs"]:
                 for run in sarif["runs"]:
                     for result in run["results"]:
-                        if result["level"] == level:
+                        if result["level"] == level and not utils_sarif.is_suppressed(
+                            result
+                        ):
                             total_result += 1
             else:
                 logging.warning("Unable to find results in:" + stdout)
@@ -2437,6 +2461,8 @@ class Linter:
                             ]["level"]
 
                 for result in run["results"]:
+                    if utils_sarif.is_suppressed(result):
+                        continue
                     count_results = False
 
                     if "level" in result:

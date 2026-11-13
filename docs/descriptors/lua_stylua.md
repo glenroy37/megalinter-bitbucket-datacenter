@@ -24,13 +24,13 @@ description: How to use stylua (configure, ignore files, ignore errors, help & v
 
 ## stylua documentation
 
-- Version in MegaLinter: **2.5.2**
+- Version in MegaLinter: **2.6.0**
 - Visit [Official Web Site](https://github.com/JohnnyMorganz/StyLua#readme){target=_blank}
 - See [How to configure stylua rules](https://github.com/JohnnyMorganz/StyLua?tab=readme-ov-file#configuration){target=_blank}
 - See [How to disable stylua rules in files](https://github.com/JohnnyMorganz/StyLua?tab=readme-ov-file#ignoring-parts-of-a-file){target=_blank}
 - See [Index of problems detected by stylua](https://roblox.github.io/lua-style-guide/){target=_blank}
 
-[![StyLua - GitHub](https://gh-card.dev/repos/JohnnyMorganz/StyLua.svg?fullname=)](https://github.com/JohnnyMorganz/StyLua){target=_blank}
+[![StyLua - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=JohnnyMorganz&repo=StyLua&show_owner=true)](https://github.com/JohnnyMorganz/StyLua){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -104,7 +104,7 @@ stylua --config-path chktexrc.toml --check myfile.lua
 ### Help content
 
 ```shell
-stylua 2.5.2
+stylua 2.6.0
 A utility to format Lua code
 
 USAGE:
@@ -181,8 +181,8 @@ FORMATTING OPTIONS:
             [possible values: Always, NoSingleString, NoSingleTable, None, Input]
 
         --collapse-simple-statement <COLLAPSE_SIMPLE_STATEMENT>
-            Specify whether to collapse simple statements [possible values: Never, FunctionOnly,
-            ConditionalOnly, Always]
+            Specify whether to collapse simple statements [possible values: Never, Input,
+            FunctionOnly, ConditionalOnly, Always]
 
         --column-width <COLUMN_WIDTH>
             The column width to use to attempt to wrap lines
@@ -220,7 +220,7 @@ FORMATTING OPTIONS:
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=github-releases depName=JohnnyMorganz/StyLua extractVersion=^v(?<version>.+)$
-ARG CARGO_STYLUA_VERSION=2.5.2
+ARG CARGO_STYLUA_VERSION=2.6.0
 FROM alpine:3.24 AS cargo-bin-stylua
 ARG TARGETARCH
 ARG CARGO_STYLUA_VERSION

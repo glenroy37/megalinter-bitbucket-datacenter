@@ -30,7 +30,7 @@ description: How to use phpcs (configure, ignore files, ignore errors, help & ve
 - See [How to ignore files and directories with phpcs](https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Advanced-Usage#ignoring-files-and-folders){target=_blank}
 - See [Index of problems detected by phpcs](https://gist.github.com/tmsnvd/057ef1cf4fd412e8c8e866e5ba5119bc){target=_blank}
 
-[![PHP_CodeSniffer - GitHub](https://gh-card.dev/repos/PHPCSStandards/PHP_CodeSniffer.svg?fullname=)](https://github.com/PHPCSStandards/PHP_CodeSniffer){target=_blank}
+[![PHP_CodeSniffer - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=PHPCSStandards&repo=PHP_CodeSniffer&show_owner=true)](https://github.com/PHPCSStandards/PHP_CodeSniffer){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -262,7 +262,7 @@ ENV PATH="/usr/local/composer/vendor/bin:${PATH}"
 # renovate: datasource=packagist depName=squizlabs/php_codesniffer
 ARG PHP_SQUIZLABS_PHP_CODESNIFFER_VERSION=4.0.4
 # renovate: datasource=packagist depName=bartlett/sarif-php-converters
-ARG PHP_BARTLETT_SARIF_PHP_CONVERTERS_VERSION=1.7.0
+ARG PHP_BARTLETT_SARIF_PHP_CONVERTERS_VERSION=1.8.2
 RUN GITHUB_AUTH_TOKEN="$(cat /run/secrets/GITHUB_TOKEN)" && export GITHUB_AUTH_TOKEN && composer global require squizlabs/php_codesniffer:${PHP_SQUIZLABS_PHP_CODESNIFFER_VERSION} bartlett/sarif-php-converters:${PHP_BARTLETT_SARIF_PHP_CONVERTERS_VERSION}
 
 ```

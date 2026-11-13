@@ -38,7 +38,7 @@ See more details in [Help](#help-content)
 - See [How to disable code-analyzer-aura rules in files](https://eslint.org/docs/latest/use/configure/rules#disabling-rules){target=_blank}
 - See [Index of problems detected by code-analyzer-aura](https://github.com/forcedotcom/eslint-plugin-aura#rules){target=_blank}
 
-[![code-analyzer - GitHub](https://gh-card.dev/repos/forcedotcom/code-analyzer.svg?fullname=)](https://github.com/forcedotcom/code-analyzer){target=_blank}
+[![code-analyzer - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=forcedotcom&repo=code-analyzer&show_owner=true)](https://github.com/forcedotcom/code-analyzer){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -107,7 +107,7 @@ sf code-analyzer run --rule-selector eslint --workspace . --file-glob '**/aura/*
 ### Help content
 
 ```shell
- ›   Warning: @salesforce/cli update available from 2.153.5 to 2.154.4.
+ ›   Warning: @salesforce/cli update available from 2.157.7 to 2.157.8.
 Analyze your code with a selection of rules to ensure good coding practices.
 
 USAGE
@@ -148,12 +148,12 @@ FLAGS
 GLOBAL FLAGS
   --flags-dir=<value>  Import flag values from a directory.
 
- ›   Warning: @salesforce/cli update available from 2.153.5 to 2.154.4.
+ ›   Warning: @salesforce/cli update available from 2.157.7 to 2.157.8.
 
 Streaming logs in real time to:
-    /tmp/sfca-2026_10_20_01_06_29_496.log
+    /tmp/sfca-2026_11_11_07_05_49_497.log
 
-Selecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 0%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 11%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 22%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 23%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 24%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 25%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 26%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 27%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 28%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 29%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 30%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 31%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 32%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 33%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 44%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 52%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 55%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 56%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 57%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 60%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 68%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 79%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 80%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 80%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 87%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 88%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 89%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 90%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 97%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 98%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 99%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, sfge, cpd, pmd; Completion: 100%; Elapsed time: 1sSelecting rules... done.
+Selecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 0%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 11%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 22%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 33%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 34%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 35%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 36%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 37%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 38%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 39%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 40%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 41%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 42%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 43%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 44%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 55%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 63%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 66%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 67%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 70%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 78%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 79%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 80%; Elapsed time: 0sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 80%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 87%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 88%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 89%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 90%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 97%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 98%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 99%; Elapsed time: 1sSelecting rules... Eligible engines: retire-js, regex, uibundle, eslint, apexguru, flow, pmd, cpd, sfge; Completion: 100%; Elapsed time: 1sSelecting rules... done.
 
   #     Name                                                              Engine   Severity       Tag
  ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -706,7 +706,7 @@ Found 540 rule(s) from 1 engine(s):
     540 eslint rule(s) found.
 
 Additional log information written to:
-    /tmp/sfca-2026_10_20_01_06_29_496.log
+    /tmp/sfca-2026_11_11_07_05_49_497.log
 ```
 
 ### Installation on mega-linter Docker image
@@ -715,11 +715,11 @@ Additional log information written to:
 ```dockerfile
 # Parent descriptor install
 # renovate: datasource=npm depName=@salesforce/cli
-ARG NPM_SALESFORCE_CLI_VERSION=2.153.5
+ARG NPM_SALESFORCE_CLI_VERSION=2.157.7
 # renovate: datasource=npm depName=@salesforce/plugin-packaging
-ARG NPM_SALESFORCE_PLUGIN_PACKAGING_VERSION=3.0.13
+ARG NPM_SALESFORCE_PLUGIN_PACKAGING_VERSION=3.0.17
 # renovate: datasource=npm depName=sfdx-hardis
-ARG SFDX_HARDIS_VERSION=8.16.0
+ARG SFDX_HARDIS_VERSION=8.21.0
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk
 ENV PATH="$JAVA_HOME/bin:${PATH}"
 ENV XDG_DATA_HOME=/usr/local/share

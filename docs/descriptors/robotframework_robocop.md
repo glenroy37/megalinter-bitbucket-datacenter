@@ -24,13 +24,13 @@ RoboCop is a linter and code formatter for the Robot Framework. It helps maintai
 
 ## robocop documentation
 
-- Version in MegaLinter: **9.1.0**
+- Version in MegaLinter: **9.1.2**
 - Visit [Official Web Site](https://github.com/MarketSquare/robotframework-robocop#readme){target=_blank}
 - See [How to configure robocop rules](https://robocop.dev/stable/configuration/){target=_blank}
 - See [How to disable robocop rules in files](https://robocop.dev/stable/configuration/disablers/){target=_blank}
 - See [Index of problems detected by robocop](https://robocop.dev/stable/rules_list/){target=_blank}
 
-[![robotframework-robocop - GitHub](https://gh-card.dev/repos/MarketSquare/robotframework-robocop.svg?fullname=)](https://github.com/MarketSquare/robotframework-robocop){target=_blank}
+[![robotframework-robocop - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=MarketSquare&repo=robotframework-robocop&show_owner=true)](https://github.com/MarketSquare/robotframework-robocop){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -108,11 +108,13 @@ robocop check myfile.robot
  Full documentation available at https://robocop.dev.
 
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
-│ --version                       Show the version and exit.                   │
-│ --install-completion            Install completion for the current shell.    │
-│ --show-completion               Show completion for the current shell, to    │
-│                                 copy it or customize the installation.       │
-│ --help                -h        Show this message and exit.                  │
+│ --version                     <bool>  Show the version and exit.             │
+│ --install-completion          <bool>  Install completion for the current     │
+│                                       shell.                                 │
+│ --show-completion             <bool>  Show completion for the current shell, │
+│                                       to copy it or customize the            │
+│                                       installation.                          │
+│ --help                -h      <bool>  Show this message and exit.            │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ╭─ Commands ───────────────────────────────────────────────────────────────────╮
 │ check    Lint Robot Framework files.                                         │
@@ -131,11 +133,11 @@ robocop check myfile.robot
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=pypi depName=robotframework-robocop
-ARG PIP_ROBOT_FRAMEWORK_ROBOCOP_VERSION=9.1.0
+ARG PIP_ROBOT_FRAMEWORK_ROBOCOP_VERSION=9.1.2
 ```
 
 - PIP packages (Python):
-  - [robotframework-robocop==9.1.0](https://pypi.org/project/robotframework-robocop/9.1.0)
+  - [robotframework-robocop==9.1.2](https://pypi.org/project/robotframework-robocop/9.1.2)
 
 ## Known errors and resolutions
 

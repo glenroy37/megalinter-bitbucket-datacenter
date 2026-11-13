@@ -29,11 +29,11 @@ description: How to use ls-lint (configure, ignore files, ignore errors, help & 
 
 ## ls-lint documentation
 
-- Version in MegaLinter: **2.3.1**
+- Version in MegaLinter: **2.3.2**
 - Visit [Official Web Site](https://ls-lint.org/){target=_blank}
 - See [Index of problems detected by ls-lint](https://ls-lint.org/2.2/configuration/the-rules.html){target=_blank}
 
-[![ls-lint - GitHub](https://gh-card.dev/repos/loeffel-io/ls-lint.svg?fullname=)](https://github.com/loeffel-io/ls-lint){target=_blank}
+[![ls-lint - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=loeffel-io&repo=ls-lint&show_owner=true)](https://github.com/loeffel-io/ls-lint){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -133,7 +133,7 @@ Options:
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=github-releases depName=loeffel-io/ls-lint extractVersion=^v(?<version>.+)$
-ARG REPOSITORY_LS_LINT_VERSION=2.3.1
+ARG REPOSITORY_LS_LINT_VERSION=2.3.2
 RUN set -eu; \
     case "$TARGETPLATFORM" in \
       linux/amd64) ARCH=amd64 ;; \

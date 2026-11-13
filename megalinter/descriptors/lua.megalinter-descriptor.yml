@@ -73,7 +73,8 @@ linters:
               && cd .. && rm -r luarocks-${LUA_LUACHECK_VERSION}-super-linter/ \
               && luarocks install luacheck \
               && cd / \
-              && apk del .lua-build-deps
+              && apk del .lua-build-deps \
+              && rm -rf /root/.cache/luarocks
     supported_platforms:
       platform:
         - linux/amd64
@@ -136,7 +137,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=github-releases depName=JohnnyMorganz/StyLua extractVersion=^v(?<version>.+)$
-          ARG CARGO_STYLUA_VERSION=2.5.2
+          ARG CARGO_STYLUA_VERSION=2.6.0
         - |-
           FROM alpine:3.24 AS cargo-bin-stylua
           ARG TARGETARCH

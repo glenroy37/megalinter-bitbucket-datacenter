@@ -75,7 +75,7 @@ jobs:
           persist-credentials: false
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -220,7 +220,7 @@ jobs:
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -281,7 +281,7 @@ jobs:
           merge-multiple: true
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -348,9 +348,9 @@ jobs:
           STEPS_VERSION_OUTPUTS_CTAG: ${{ steps.version.outputs.ctag }}
           STEPS_VERSION_OUTPUTS_PVERSION: ${{ steps.version.outputs.pversion }}
           STEPS_VERSION_OUTPUTS_CVERSION: ${{ steps.version.outputs.cversion }}
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
-          python-version: 3.14.8
+          python-version-file: .python-version
       - run: pip install --upgrade -r .config/python/dev/requirements.txt
       - run: cd .automation && bash build_schemas_doc.sh && cd ..
       - run: |

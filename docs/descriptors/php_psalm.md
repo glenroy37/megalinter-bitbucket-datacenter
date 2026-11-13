@@ -29,14 +29,14 @@ description: How to use psalm (configure, ignore files, ignore errors, help & ve
 
 ## psalm documentation
 
-- Version in MegaLinter: **Psalm.6.19.2@**
+- Version in MegaLinter: **Psalm.6.20.1@**
 - Visit [Official Web Site](https://psalm.dev){target=_blank}
 - See [How to configure psalm rules](https://psalm.dev/docs/running_psalm/configuration/){target=_blank}
   - If custom `psalm.xml` config file isn't found, [psalm.xml](https://github.com/oxsecurity/megalinter/tree/main/TEMPLATES/psalm.xml){target=_blank} will be used
 - See [How to disable psalm rules in files](https://psalm.dev/docs/running_psalm/dealing_with_code_issues/#docblock-suppression){target=_blank}
 - See [Index of problems detected by psalm](https://psalm.dev/docs/running_psalm/issues/){target=_blank}
 
-[![psalm - GitHub](https://gh-card.dev/repos/vimeo/psalm.svg?fullname=)](https://github.com/vimeo/psalm){target=_blank}
+[![psalm - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=vimeo&repo=psalm&show_owner=true)](https://github.com/vimeo/psalm){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -318,7 +318,7 @@ ENV COMPOSER_HOME=/usr/local/composer
 ENV PATH="/usr/local/composer/vendor/bin:${PATH}"
 # Linter install
 # renovate: datasource=packagist depName=vimeo/psalm
-ARG PHP_VIMEO_PSALM_VERSION=6.19.2
+ARG PHP_VIMEO_PSALM_VERSION=6.20.1
 RUN GITHUB_AUTH_TOKEN="$(cat /run/secrets/GITHUB_TOKEN)" && export GITHUB_AUTH_TOKEN && composer global require vimeo/psalm:${PHP_VIMEO_PSALM_VERSION}
 
 ```

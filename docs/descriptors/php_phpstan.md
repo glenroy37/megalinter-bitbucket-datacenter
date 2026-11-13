@@ -22,13 +22,13 @@ description: How to use phpstan (configure, ignore files, ignore errors, help & 
 
 ## phpstan documentation
 
-- Version in MegaLinter: **2.2.17**
+- Version in MegaLinter: **2.3.5**
 - Visit [Official Web Site](https://phpstan.org/){target=_blank}
 - See [How to configure phpstan rules](https://phpstan.org/config-reference#neon-format){target=_blank}
   - If custom `phpstan.neon.dist` config file isn't found, [phpstan.neon.dist](https://github.com/oxsecurity/megalinter/tree/main/TEMPLATES/phpstan.neon.dist){target=_blank} will be used
 - See [How to disable phpstan rules in files](https://phpstan.org/user-guide/ignoring-errors#ignoring-in-code-using-phpdocs){target=_blank}
 
-[![phpstan - GitHub](https://gh-card.dev/repos/phpstan/phpstan.svg?fullname=)](https://github.com/phpstan/phpstan){target=_blank}
+[![phpstan - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=phpstan&repo=phpstan&show_owner=true)](https://github.com/phpstan/phpstan){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -122,10 +122,13 @@ Options:
   -b, --generate-baseline[=GENERATE-BASELINE]  Path to a file where the baseline should be saved [default: false]
       --allow-empty-baseline                   Do not error out when the generated baseline is empty
       --memory-limit=MEMORY-LIMIT              Memory limit for analysis
-      --xdebug                                 Allow running with Xdebug for debugging purposes
+      --xdebug                                 Allow running with Xdebug for debugging purposes (pcov and uopz are still turned off)
       --tmp-file=TMP-FILE                      (Editor mode) Edited file used in place of --instead-of file
       --instead-of=INSTEAD-OF                  (Editor mode) File being replaced by --tmp-file
       --fix                                    Fix auto-fixable errors (experimental)
+      --fix-ignored                            Fix auto-fixable ignored errors, can be combined with --fix (experimental)
+      --fix-round                              (Internal) Run one round of --fix and print its counts as JSON
+      --fixed-ignored-in=FIXED-IGNORED-IN      (Internal) Files changed by the previous rounds of --fix-ignored (multiple values allowed)
       --watch                                  Launch PHPStan Pro
       --pro                                    Launch PHPStan Pro
       --fail-without-result-cache              Return non-zero exit code when result cache is not used
@@ -148,11 +151,11 @@ ENV COMPOSER_HOME=/usr/local/composer
 ENV PATH="/usr/local/composer/vendor/bin:${PATH}"
 # Linter install
 # renovate: datasource=packagist depName=phpstan/phpstan
-ARG PHP_PHPSTAN_PHPSTAN_VERSION=2.2.17
+ARG PHP_PHPSTAN_PHPSTAN_VERSION=2.3.5
 # renovate: datasource=packagist depName=phpstan/extension-installer
 ARG PHP_PHPSTAN_EXTENSION_INSTALLER_VERSION=1.4.3
 # renovate: datasource=packagist depName=bartlett/sarif-php-converters
-ARG PHP_BARTLETT_SARIF_PHP_CONVERTERS_VERSION=1.7.0
+ARG PHP_BARTLETT_SARIF_PHP_CONVERTERS_VERSION=1.8.2
 RUN GITHUB_AUTH_TOKEN="$(cat /run/secrets/GITHUB_TOKEN)" && export GITHUB_AUTH_TOKEN && composer config --global allow-plugins.phpstan/extension-installer true && composer global require phpstan/phpstan:${PHP_PHPSTAN_PHPSTAN_VERSION} phpstan/extension-installer:${PHP_PHPSTAN_EXTENSION_INSTALLER_VERSION} bartlett/sarif-php-converters:${PHP_BARTLETT_SARIF_PHP_CONVERTERS_VERSION}
 ```
 

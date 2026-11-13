@@ -22,12 +22,12 @@ description: How to use kingfisher (configure, ignore files, ignore errors, help
 
 ## kingfisher documentation
 
-- Version in MegaLinter: **2.11.1**
+- Version in MegaLinter: **2.14.0**
 - Visit [Official Web Site](https://github.com/mongodb/kingfisher#readme){target=_blank}
 - See [How to disable kingfisher rules in files](https://mongodb.github.io/kingfisher/usage/advanced/?h=inline#inline-ignore-directives){target=_blank}
 - See [Index of problems detected by kingfisher](https://mongodb.github.io/kingfisher/rules/builtin-rules){target=_blank}
 
-[![kingfisher - GitHub](https://gh-card.dev/repos/mongodb/kingfisher.svg?fullname=)](https://github.com/mongodb/kingfisher){target=_blank}
+[![kingfisher - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=mongodb&repo=kingfisher&show_owner=true)](https://github.com/mongodb/kingfisher){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -128,7 +128,7 @@ Global Options:
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=github-tags depName=mongodb/kingfisher
-ARG REPOSITORY_KINGFISHER_VERSION=2.11.1
+ARG REPOSITORY_KINGFISHER_VERSION=2.14.0
 RUN curl --silent --location https://raw.githubusercontent.com/mongodb/kingfisher/main/scripts/install-kingfisher.sh | bash -s -- /usr/local/bin --tag "v${REPOSITORY_KINGFISHER_VERSION}"
 
 ```

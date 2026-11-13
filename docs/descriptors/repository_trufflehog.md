@@ -29,11 +29,11 @@ description: How to use trufflehog (configure, ignore files, ignore errors, help
 
 ## trufflehog documentation
 
-- Version in MegaLinter: **3.99.2**
+- Version in MegaLinter: **3.99.7**
 - Visit [Official Web Site](https://github.com/trufflesecurity/trufflehog#readme){target=_blank}
 - See [How to configure trufflehog rules](https://github.com/trufflesecurity/trufflehog#regex-detector-alpha){target=_blank}
 
-[![trufflehog - GitHub](https://gh-card.dev/repos/trufflesecurity/trufflehog.svg?fullname=)](https://github.com/trufflesecurity/trufflehog){target=_blank}
+[![trufflehog - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=trufflesecurity&repo=trufflehog&show_owner=true)](https://github.com/trufflesecurity/trufflehog){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -270,7 +270,7 @@ analyze
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=docker depName=trufflesecurity/trufflehog
-ARG REPOSITORY_TRUFFLEHOG_VERSION=3.99.2
+ARG REPOSITORY_TRUFFLEHOG_VERSION=3.99.7
 FROM trufflesecurity/trufflehog:${REPOSITORY_TRUFFLEHOG_VERSION} AS trufflehog
 COPY --link --from=trufflehog /usr/bin/trufflehog /usr/bin/
 ```

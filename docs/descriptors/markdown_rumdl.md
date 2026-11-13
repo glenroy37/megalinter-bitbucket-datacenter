@@ -23,13 +23,13 @@ description: How to use rumdl (configure, ignore files, ignore errors, help & ve
 
 ## rumdl documentation
 
-- Version in MegaLinter: **0.2.79**
+- Version in MegaLinter: **0.3.0**
 - Visit [Official Web Site](https://github.com/rvben/rumdl#readme){target=_blank}
 - See [How to configure rumdl rules](https://github.com/rvben/rumdl/blob/main/docs/global-settings.md){target=_blank}
 - See [How to disable rumdl rules in files](https://github.com/rvben/rumdl/blob/main/docs/inline-configuration.md){target=_blank}
 - See [Index of problems detected by rumdl](https://github.com/rvben/rumdl/blob/main/docs/RULES.md){target=_blank}
 
-[![rumdl - GitHub](https://gh-card.dev/repos/rvben/rumdl.svg?fullname=)](https://github.com/rvben/rumdl){target=_blank}
+[![rumdl - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=rvben&repo=rumdl&show_owner=true)](https://github.com/rvben/rumdl){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -158,8 +158,8 @@ Options:
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=pypi depName=rumdl
-ARG PIP_RUMDL_VERSION=0.2.79
+ARG PIP_RUMDL_VERSION=0.3.0
 ```
 
 - PIP packages (Python):
-  - [rumdl==0.2.79](https://pypi.org/project/rumdl/0.2.79)
+  - [rumdl==0.3.0](https://pypi.org/project/rumdl/0.3.0)

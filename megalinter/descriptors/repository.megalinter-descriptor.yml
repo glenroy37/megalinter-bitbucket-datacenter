@@ -76,7 +76,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=pypi depName=checkov
-          ARG PIP_CHECKOV_VERSION=3.3.22
+          ARG PIP_CHECKOV_VERSION=3.4.0
       pip:
         - checkov==${PIP_CHECKOV_VERSION}
     supported_platforms:
@@ -178,7 +178,24 @@ linters:
           ARG REPOSITORY_DEVSKIM_VERSION=1.0.70
         - RUN apk add --no-cache dotnet10-sdk && install -d /usr/local/dotnet-tools
         - ENV PATH="${PATH}:/usr/local/dotnet-tools"
-        - RUN dotnet tool install --allow-roll-forward --tool-path /usr/local/dotnet-tools Microsoft.CST.DevSkim.CLI --version ${REPOSITORY_DEVSKIM_VERSION}
+        # Delete the tool nupkg archives and the target framework folders the
+        # tool shim does not load (it loads the newest one supported by the SDK)
+        - |-
+          RUN dotnet tool install --allow-roll-forward --tool-path /usr/local/dotnet-tools Microsoft.CST.DevSkim.CLI --version ${REPOSITORY_DEVSKIM_VERSION} \
+              && find /usr/local/dotnet-tools/.store -name "*.nupkg" -delete \
+              && DOTNET_SDK_MAJOR="$(dotnet --version | cut -d. -f1)" \
+              && for tools_dir in /usr/local/dotnet-tools/.store/*/*/*/*/tools; do \
+                   keep=""; \
+                   for tfm_dir in "$tools_dir"/net[0-9]*.[0-9]*; do \
+                     tfm_major="${tfm_dir##*/net}"; tfm_major="${tfm_major%%.*}"; \
+                     case "$tfm_major" in ""|*[!0-9]*) continue ;; esac; \
+                     if [ "$tfm_major" -le "$DOTNET_SDK_MAJOR" ] && [ "$tfm_major" -gt "${keep:-0}" ]; then keep="$tfm_major"; fi; \
+                   done; \
+                   [ -n "$keep" ] || continue; \
+                   for tfm_dir in "$tools_dir"/net[0-9]*; do \
+                     case "$(basename "$tfm_dir")" in "net${keep}".*) ;; *) rm -rf "$tfm_dir" ;; esac; \
+                   done; \
+                 done
     supported_platforms:
       platform:
         - linux/amd64
@@ -233,7 +250,7 @@ linters:
           ARG REPOSITORY_DUSTILOCK_VERSION=1.2.0
         - |-
           # renovate: datasource=docker depName=golang versioning=semver
-          ARG GO_IMAGE_VERSION=1.27.2
+          ARG GO_IMAGE_VERSION=1.27.3
         # The golang image used as a builder is a temporary workaround
         # Dustilock is not released as a binary or container
         - |-
@@ -523,7 +540,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=github-tags depName=anchore/grype
-          ARG REPOSITORY_GRYPE_VERSION=0.120.1
+          ARG REPOSITORY_GRYPE_VERSION=0.121.0
         - RUN curl -sSfL https://raw.githubusercontent.com/anchore/grype/refs/tags/v${REPOSITORY_GRYPE_VERSION}/install.sh | sh -s -- -b /usr/local/bin
     supported_platforms:
       platform:
@@ -579,7 +596,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=github-releases depName=loeffel-io/ls-lint extractVersion=^v(?<version>.+)$
-          ARG REPOSITORY_LS_LINT_VERSION=2.3.1
+          ARG REPOSITORY_LS_LINT_VERSION=2.3.2
         - |-
           RUN set -eu; \
               case "$TARGETPLATFORM" in \
@@ -753,13 +770,13 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=npm depName=secretlint
-          ARG NPM_SECRETLINT_VERSION=13.0.7
+          ARG NPM_SECRETLINT_VERSION=13.1.0
         - |-
           # renovate: datasource=npm depName=@secretlint/secretlint-rule-preset-recommend
-          ARG NPM_SECRETLINT_SECRETLINT_RULE_PRESET_RECOMMEND_VERSION=13.0.7
+          ARG NPM_SECRETLINT_SECRETLINT_RULE_PRESET_RECOMMEND_VERSION=13.1.0
         - |-
           # renovate: datasource=npm depName=@secretlint/secretlint-formatter-sarif
-          ARG NPM_SECRETLINT_SECRETLINT_FORMATTER_SARIF_VERSION=13.0.7
+          ARG NPM_SECRETLINT_SECRETLINT_FORMATTER_SARIF_VERSION=13.1.0
       npm:
         - secretlint@${NPM_SECRETLINT_VERSION}
         - "@secretlint/secretlint-rule-preset-recommend@${NPM_SECRETLINT_SECRETLINT_RULE_PRESET_RECOMMEND_VERSION}"
@@ -830,7 +847,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=pypi depName=semgrep
-          ARG PIP_SEMGREP_VERSION=1.180.0
+          ARG PIP_SEMGREP_VERSION=1.183.0
         - |-
           # Wrap semgrep so its OCaml 5 runtime does not abort with
           # "Failed to allocate signal stack for domain 0", which happens when the
@@ -914,7 +931,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=github-tags depName=anchore/syft
-          ARG REPOSITORY_SYFT_VERSION=1.54.1
+          ARG REPOSITORY_SYFT_VERSION=1.55.0
         - RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/refs/tags/v${REPOSITORY_SYFT_VERSION}/install.sh | sh -s -- -b /usr/local/bin
     supported_platforms:
       platform:
@@ -1032,10 +1049,17 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=github-tags depName=aquasecurity/trivy
-          ARG REPOSITORY_TRIVY_VERSION=0.75.0
+          ARG REPOSITORY_TRIVY_VERSION=0.76.1
+        - ARG TRIVY_DB_REPOSITORY=mirror.gcr.io/aquasec/trivy-db:2,ghcr.io/aquasecurity/trivy-db:2,public.ecr.aws/aquasecurity/trivy-db:2
         - |
           RUN wget --tries=5 -q -O - https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin "v${REPOSITORY_TRIVY_VERSION}" \
-              && (trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress)
+              && for attempt in 1 2 3 4 5; do \
+                   for db_repository in $(echo "${TRIVY_DB_REPOSITORY}" | tr ',' ' '); do \
+                     trivy image --download-db-only --no-progress --db-repository "${db_repository}" && break 2; \
+                   done; \
+                   [ "${attempt}" -eq 5 ] || sleep $((attempt * 10)); \
+                 done \
+              && test -f "${HOME}/.cache/trivy/db/trivy.db"
     supported_platforms:
       platform:
         - linux/amd64
@@ -1129,10 +1153,17 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=github-tags depName=aquasecurity/trivy
-          ARG REPOSITORY_TRIVY_SBOM_VERSION=0.75.0
+          ARG REPOSITORY_TRIVY_SBOM_VERSION=0.76.1
+        - ARG TRIVY_DB_REPOSITORY=mirror.gcr.io/aquasec/trivy-db:2,ghcr.io/aquasecurity/trivy-db:2,public.ecr.aws/aquasecurity/trivy-db:2
         - |
           RUN wget --tries=5 -q -O - https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin "v${REPOSITORY_TRIVY_SBOM_VERSION}" \
-              && (trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress || trivy image --download-db-only --no-progress)
+              && for attempt in 1 2 3 4 5; do \
+                   for db_repository in $(echo "${TRIVY_DB_REPOSITORY}" | tr ',' ' '); do \
+                     trivy image --download-db-only --no-progress --db-repository "${db_repository}" && break 2; \
+                   done; \
+                   [ "${attempt}" -eq 5 ] || sleep $((attempt * 10)); \
+                 done \
+              && test -f "${HOME}/.cache/trivy/db/trivy.db"
     supported_platforms:
       platform:
         - linux/amd64
@@ -1193,7 +1224,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=docker depName=trufflesecurity/trufflehog
-          ARG REPOSITORY_TRUFFLEHOG_VERSION=3.99.2
+          ARG REPOSITORY_TRUFFLEHOG_VERSION=3.99.7
         - FROM trufflesecurity/trufflehog:${REPOSITORY_TRUFFLEHOG_VERSION} AS trufflehog
         - COPY --link --from=trufflehog /usr/bin/trufflehog /usr/bin/
     supported_platforms:
@@ -1279,7 +1310,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=github-tags depName=mongodb/kingfisher
-          ARG REPOSITORY_KINGFISHER_VERSION=2.11.1
+          ARG REPOSITORY_KINGFISHER_VERSION=2.14.0
         - |
           RUN curl --silent --location https://raw.githubusercontent.com/mongodb/kingfisher/main/scripts/install-kingfisher.sh | bash -s -- /usr/local/bin --tag "v${REPOSITORY_KINGFISHER_VERSION}"
     supported_platforms:

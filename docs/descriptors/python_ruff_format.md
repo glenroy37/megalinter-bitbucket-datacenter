@@ -19,14 +19,14 @@ description: How to use ruff-format (configure, ignore files, ignore errors, hel
 
 ## ruff-format documentation
 
-- Version in MegaLinter: **0.16.10**
+- Version in MegaLinter: **0.17.2**
 - Visit [Official Web Site](https://github.com/astral-sh/ruff#readme){target=_blank}
 - See [How to configure ruff-format rules](https://docs.astral.sh/ruff/configuration/){target=_blank}
   - If custom `.ruff.toml` config file isn't found, [.ruff.toml](https://github.com/oxsecurity/megalinter/tree/main/TEMPLATES/.ruff.toml){target=_blank} will be used
 - See [How to disable ruff-format rules in files](https://docs.astral.sh/ruff/linter/#error-suppression){target=_blank}
 - See [Index of problems detected by ruff-format](https://docs.astral.sh/ruff/rules/){target=_blank}
 
-[![ruff - GitHub](https://gh-card.dev/repos/astral-sh/ruff.svg?fullname=)](https://github.com/astral-sh/ruff){target=_blank}
+[![ruff - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=astral-sh&repo=ruff&show_owner=true)](https://github.com/astral-sh/ruff){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -164,8 +164,8 @@ For help with a specific command, see: `ruff help <command>`.
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=pypi depName=ruff
-ARG PIP_RUFF_VERSION=0.16.10
+ARG PIP_RUFF_VERSION=0.17.2
 ```
 
 - PIP packages (Python):
-  - [ruff==0.16.10](https://pypi.org/project/ruff/0.16.10)
+  - [ruff==0.17.2](https://pypi.org/project/ruff/0.17.2)

@@ -125,7 +125,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=npm depName=markdown-table-formatter
-          ARG NPM_MARKDOWN_TABLE_FORMATTER_VERSION=1.7.0
+          ARG NPM_MARKDOWN_TABLE_FORMATTER_VERSION=2.1.0
       npm:
         - markdown-table-formatter@${NPM_MARKDOWN_TABLE_FORMATTER_VERSION}
     supported_platforms:
@@ -195,7 +195,7 @@ linters:
       dockerfile:
         - |-
           # renovate: datasource=pypi depName=rumdl
-          ARG PIP_RUMDL_VERSION=0.2.79
+          ARG PIP_RUMDL_VERSION=0.3.2
       pip:
         - rumdl==${PIP_RUMDL_VERSION}
     supported_platforms:

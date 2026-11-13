@@ -25,7 +25,7 @@ description: How to use lychee (configure, ignore files, ignore errors, help & v
 - **Multiple Output Formats**: JSON, Markdown, detailed, and compact reporting formats
 - **Privacy-Aware**: Options to exclude private IPs, link-local addresses, and localhost from checking
 
-A file **.lycheeignore** can be defined at the root of the repository to ignore some urls.
+A file **.lycheeignore** can be defined at the root of the repository, or in the `LINTER_RULES_PATH` folder (default `.github/linters`), to ignore some urls.
 Each line can contain Regular Expressions or glob format.
 Example with glob, regex and full url:
 ```
@@ -43,7 +43,7 @@ https://github.com/sgerrand/alpine-pkg-glibc/releases/download
   - You can define a `.lycheeignore` file to ignore files and folders
 - See [Index of problems detected by lychee](https://lychee.cli.rs/guides/cli/){target=_blank}
 
-[![lychee - GitHub](https://gh-card.dev/repos/lycheeverse/lychee.svg?fullname=)](https://github.com/lycheeverse/lychee){target=_blank}
+[![lychee - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=lycheeverse&repo=lychee&show_owner=true)](https://github.com/lycheeverse/lychee){target=_blank}
 
 ## Configuration in MegaLinter
 

@@ -38,14 +38,14 @@ The default configuration enables all supported languages and rules, which may n
 
 ## tflint documentation
 
-- Version in MegaLinter: **0.64.0**
+- Version in MegaLinter: **0.65.0**
 - Visit [Official Web Site](https://github.com/terraform-linters/tflint#readme){target=_blank}
 - See [How to configure tflint rules](https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/config.md){target=_blank}
   - If custom `.tflint.hcl` config file isn't found, [.tflint.hcl](https://github.com/oxsecurity/megalinter/tree/main/TEMPLATES/.tflint.hcl){target=_blank} will be used
 - See [How to disable tflint rules in files](https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/annotations.md){target=_blank}
 - See [Index of problems detected by tflint](https://github.com/terraform-linters/tflint-ruleset-terraform/blob/main/docs/rules/README.md){target=_blank}
 
-[![tflint - GitHub](https://gh-card.dev/repos/terraform-linters/tflint.svg?fullname=)](https://github.com/terraform-linters/tflint){target=_blank}
+[![tflint - GitHub](https://github-stats-extended.vercel.app/api/pin/?username=terraform-linters&repo=tflint&show_owner=true)](https://github.com/terraform-linters/tflint){target=_blank}
 
 ## Configuration in MegaLinter
 
@@ -203,7 +203,7 @@ Help Options:
 - Dockerfile commands :
 ```dockerfile
 # renovate: datasource=docker depName=ghcr.io/terraform-linters/tflint
-ARG TERRAFORM_TFLINT_VERSION=0.64.0
+ARG TERRAFORM_TFLINT_VERSION=0.65.0
 FROM ghcr.io/terraform-linters/tflint:v${TERRAFORM_TFLINT_VERSION} AS tflint
 COPY --link --from=tflint /usr/local/bin/tflint /usr/bin/
 ```
